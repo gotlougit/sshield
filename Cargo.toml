@@ -6,3 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.72"
+async-trait = "0.1.71"
+futures = "0.3.28"
+russh = "0.37.1"
+russh-keys = "0.37.1"
+tokio = { version = "1.29.1", features = [ "full" ] }
