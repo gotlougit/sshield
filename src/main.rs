@@ -35,15 +35,11 @@ impl client::Handler for Client {
 
     async fn data(
         self,
-        channel: ChannelId,
+        _channel: ChannelId,
         data: &[u8],
         session: client::Session,
     ) -> Result<(Self, client::Session), Self::Error> {
-        println!(
-            "data on channel {:?}: {:?}",
-            channel,
-            std::str::from_utf8(data)
-        );
+        println!("{}", std::str::from_utf8(data).unwrap());
         Ok((self, session))
     }
 }
