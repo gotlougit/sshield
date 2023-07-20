@@ -1,8 +1,23 @@
 use async_trait::async_trait;
+use clap::Parser;
 use russh::{client, ChannelId};
 use russh_keys::{key, load_secret_key};
-use std::env;
 use std::sync::Arc;
+
+/// Rust reimplementation of SSH client with sandboxing
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Username
+    #[arg(long)]
+    user: String,
+    /// Hostname
+    #[arg(long)]
+    host: String,
+    /// SSH keyfile to use
+    #[arg(long)]
+    keyfile: String,
+}
 
 struct Client {}
 
@@ -35,14 +50,10 @@ impl client::Handler for Client {
 
 #[tokio::main]
 async fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 4 {
-        eprintln!("USAGE: ssh-rs <user> <hostname> <key>");
-        return;
-    }
-    let user = args[1].clone();
-    let host = args[2].clone();
-    let keyfile = args[3].clone();
+    let args = Args::parse();
+    let user = args.user;
+    let host = args.host;
+    let keyfile = args.keyfile;
     let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
@@ -56,7 +67,10 @@ async fn main() {
         let mut channel = session.channel_open_session().await.unwrap();
         channel.request_shell(true).await.unwrap();
         if let Some(msg) = channel.wait().await {
-            println!("{:?}", msg)
+            let output = format!("{:#?}", msg);
+            if output != "Success" {
+                println!("{output}");
+            }
         }
     }
 }

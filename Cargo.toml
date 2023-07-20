@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.72"
 async-trait = "0.1.71"
+clap = { version = "4.3.17", features = [ "derive" ] }
 futures = "0.3.28"
 russh = "0.37.1"
 russh-keys = "0.37.1"
