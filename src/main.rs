@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use russh::{client, ChannelId, Disconnect};
-use russh_keys::{agent, key, load_secret_key};
+use russh::{client, ChannelId};
+use russh_keys::{key, load_secret_key};
 use std::env;
 use std::sync::Arc;
 
@@ -47,13 +47,10 @@ async fn main() {
     let sh = Client {};
 
     let key = load_secret_key(keyfile, None).unwrap();
-    let mut agent = agent::client::AgentClient::connect_env().await.unwrap();
-    agent.add_identity(&key, &[]).await.unwrap();
     let mut session = client::connect(config, (host, 22), sh).await.unwrap();
     if session
-        .authenticate_future(user, key.clone_public_key().unwrap(), agent)
+        .authenticate_publickey(user, Arc::new(key))
         .await
-        .1
         .unwrap()
     {
         let mut channel = session.channel_open_session().await.unwrap();
@@ -61,13 +58,5 @@ async fn main() {
         if let Some(msg) = channel.wait().await {
             println!("{:?}", msg)
         }
-        session
-            .disconnect(
-                Disconnect::ByApplication,
-                "Client closed connection",
-                "en-us",
-            )
-            .await
-            .unwrap();
     }
 }
