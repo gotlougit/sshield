@@ -63,10 +63,7 @@ async fn main() {
         let mut channel = session.channel_open_session().await.unwrap();
         channel.request_shell(true).await.unwrap();
         if let Some(msg) = channel.wait().await {
-            let output = format!("{:#?}", msg);
-            if output != "Success" {
-                println!("{output}");
-            }
+            println!("{:#?}", msg);
         }
     }
 }
