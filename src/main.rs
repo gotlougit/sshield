@@ -25,6 +25,7 @@ struct Client {}
 impl client::Handler for Client {
     type Error = anyhow::Error;
 
+    // TODO: maybe check this against known_hosts
     async fn check_server_key(
         self,
         server_public_key: &key::PublicKey,
