@@ -90,7 +90,7 @@ impl client::Handler for Client {
     }
 }
 
-async fn connect(user: String, host: String, keyfile: String) {
+async fn connect(user: &str, host: &str, keyfile: &str) {
     let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
