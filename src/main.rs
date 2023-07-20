@@ -1,9 +1,7 @@
 use async_trait::async_trait;
-use futures::Future;
-use russh::server::{Auth, Session};
-use russh::*;
-use russh_keys::*;
-use std::io::Read;
+use russh::{client, ChannelId, Disconnect};
+use russh_keys::{agent, key, load_secret_key};
+use std::env;
 use std::sync::Arc;
 
 struct Client {}
@@ -37,32 +35,39 @@ impl client::Handler for Client {
 
 #[tokio::main]
 async fn main() {
-    let config = russh::client::Config::default();
-    let config = Arc::new(config);
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 4 {
+        eprintln!("USAGE: ssh-rs <user> <hostname> <key>");
+        return;
+    }
+    let user = args[1].clone();
+    let host = args[2].clone();
+    let keyfile = args[3].clone();
+    let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
-    let key = russh_keys::key::KeyPair::generate_ed25519().unwrap();
-    let mut agent = russh_keys::agent::client::AgentClient::connect_env()
-        .await
-        .unwrap();
+    let key = load_secret_key(keyfile, None).unwrap();
+    let mut agent = agent::client::AgentClient::connect_env().await.unwrap();
     agent.add_identity(&key, &[]).await.unwrap();
-    let mut session = russh::client::connect(config, ("127.0.0.1", 22), sh)
-        .await
-        .unwrap();
+    let mut session = client::connect(config, (host, 22), sh).await.unwrap();
     if session
-        .authenticate_future(
-            std::env::var("USER").unwrap_or("user".to_owned()),
-            key.clone_public_key().unwrap(),
-            agent,
-        )
+        .authenticate_future(user, key.clone_public_key().unwrap(), agent)
         .await
         .1
         .unwrap()
     {
         let mut channel = session.channel_open_session().await.unwrap();
-        channel.data(&b"Hello, world!"[..]).await.unwrap();
+        channel.request_shell(true).await.unwrap();
         if let Some(msg) = channel.wait().await {
             println!("{:?}", msg)
         }
+        session
+            .disconnect(
+                Disconnect::ByApplication,
+                "Client closed connection",
+                "en-us",
+            )
+            .await
+            .unwrap();
     }
 }
