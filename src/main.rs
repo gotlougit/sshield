@@ -1,22 +1,67 @@
 use async_trait::async_trait;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use russh::{client, ChannelId};
 use russh_keys::{key, load_secret_key};
 use std::sync::Arc;
 
+#[derive(Subcommand, PartialEq)]
+enum Command {
+    /// Generate a key for a particular service
+    GenKey {
+        /// key nickname
+        #[arg(required = true)]
+        name: String,
+        /// Username
+        #[arg(long)]
+        user: String,
+        /// Hostname
+        #[arg(long)]
+        host: String,
+        /// Port (optional)
+        #[arg(long, default_value_t = 22)]
+        port: u16,
+    },
+    /// Show a key for a particular service
+    ShowKey {
+        /// key nickname
+        #[arg(required = true)]
+        name: String,
+    },
+    /// Delete a key for a particular service
+    DeleteKey {
+        /// key nickname
+        #[arg(required = true)]
+        name: String,
+    },
+    /// Create a new key for a pre-existing service
+    UpdateKey {
+        /// key nickname
+        #[arg(required = true)]
+        name: String,
+        /// Username
+        #[arg(long, required = false)]
+        user: Option<String>,
+        /// Hostname
+        #[arg(long, required = false)]
+        host: Option<String>,
+        /// Port (optional)
+        #[arg(long, required = false)]
+        port: Option<u16>,
+    },
+    /// Connect to a service using its nickname
+    Connect {
+        /// key nickname
+        #[arg(required = true)]
+        name: String,
+    },
+}
+
 /// Rust reimplementation of SSH client with sandboxing
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Username
-    #[arg(long)]
-    user: String,
-    /// Hostname
-    #[arg(long)]
-    host: String,
-    /// SSH keyfile to use
-    #[arg(long)]
-    keyfile: String,
+    #[command(subcommand)]
+    command: Option<Command>,
 }
 
 struct Client {}
@@ -45,12 +90,7 @@ impl client::Handler for Client {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let args = Args::parse();
-    let user = args.user;
-    let host = args.host;
-    let keyfile = args.keyfile;
+async fn connect(user: String, host: String, keyfile: String) {
     let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
@@ -67,4 +107,22 @@ async fn main() {
             println!("{:#?}", msg);
         }
     }
+}
+
+#[tokio::main]
+async fn main() {
+    let args = Args::parse();
+    match args.command {
+        Some(cmd) => {
+            match cmd {
+                Command::Connect { name } => {
+                    println!("{name}");
+                }
+                _ => {
+                    println!("hello");
+                }
+            };
+        }
+        None => {}
+    };
 }
