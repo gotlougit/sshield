@@ -14,7 +14,7 @@ impl client::Handler for Client {
         self,
         server_public_key: &key::PublicKey,
     ) -> Result<(Self, bool), Self::Error> {
-        println!("check_server_key: {:?}", server_public_key);
+        println!("check_server_key: {:#?}", server_public_key);
         Ok((self, true))
     }
 
