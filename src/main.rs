@@ -4,7 +4,7 @@ use db::ProcessedKey;
 use russh::{client, ChannelId};
 use russh_keys::{
     key::{KeyPair, PublicKey},
-    pkcs8, PublicKeyBase64,
+    pkcs8,
 };
 use std::sync::Arc;
 
