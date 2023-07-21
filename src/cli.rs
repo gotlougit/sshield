@@ -18,7 +18,7 @@ pub enum Command {
         port: u16,
     },
     /// Show a key for a particular service,
-    /// If no name is given, return all keys
+    /// if no name is given, return all keys
     ShowKey {
         /// key nickname
         #[arg(required = false)]
