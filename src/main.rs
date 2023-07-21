@@ -14,13 +14,13 @@ enum Command {
         #[arg(required = true)]
         name: String,
         /// Username
-        #[arg(long)]
+        #[arg(required = true)]
         user: String,
         /// Hostname
-        #[arg(long)]
+        #[arg(required = true)]
         host: String,
         /// Port (optional)
-        #[arg(long, default_value_t = 22)]
+        #[arg(short, long, default_value_t = 22)]
         port: u16,
     },
     /// Show a key for a particular service
