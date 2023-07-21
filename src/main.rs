@@ -126,10 +126,7 @@ fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
 fn show_key(nick: &str) {
     match crate::db::get_key(nick) {
         Ok(res) => {
-            let key = russh_keys::pkcs8::decode_pkcs8(res.get_key(), None).unwrap();
-            let pubkey = key.public_key_base64();
-            let cipher = key.name();
-            println!("{cipher} {pubkey} {nick}");
+            println!("{res}");
         }
         Err(_) => {
             eprintln!("That key doesn't exist, try creating it?");
