@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
+use db::StructuredKey;
 use russh::{client, ChannelId};
 use russh_keys::{
     encode_pkcs8_pem,
@@ -100,8 +101,10 @@ async fn connect(nick: &str) {
     let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
-    let key = show_key(nick).unwrap();
-    let mut session = client::connect(config, (host, 22), sh).await.unwrap();
+    let structkey = show_key(nick).unwrap();
+    let key = russh_keys::pkcs8::decode_pkcs8(structkey.get_key(), None).unwrap();
+    let (user, host, port) = structkey.get_conn_info();
+    let mut session = client::connect(config, (host, port), sh).await.unwrap();
     if session
         .authenticate_publickey(user, Arc::new(key))
         .await
@@ -127,13 +130,11 @@ fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
     println!("{} {} {}", cipher, pubkey.public_key_base64(), nick);
 }
 
-fn show_key(nick: &str) -> Result<KeyPair, rusqlite::Error> {
+fn show_key(nick: &str) -> Result<StructuredKey, rusqlite::Error> {
     match crate::db::get_key(nick) {
         Ok(res) => {
             println!("{res}");
-            let rawkey = res.get_key();
-            let key = russh_keys::pkcs8::decode_pkcs8(rawkey, None).unwrap();
-            return Ok(key);
+            return Ok(res);
         }
         Err(e) => {
             eprintln!("That key doesn't exist, try creating it?");
@@ -149,7 +150,7 @@ async fn main() {
         Some(cmd) => {
             match cmd {
                 Command::Connect { name } => {
-                    println!("{name}");
+                    connect(&name).await;
                 }
                 Command::GenKey {
                     name,
@@ -160,7 +161,7 @@ async fn main() {
                     gen_key(&name, &user, &host, port);
                 }
                 Command::ShowKey { name } => {
-                    show_key(&name);
+                    show_key(&name).unwrap();
                 }
                 _ => {
                     println!("hello");
