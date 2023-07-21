@@ -138,7 +138,6 @@ async fn main() {
                     host,
                     port,
                 } => {
-                    println!("{name}, {user}@{host}:{port}");
                     gen_key(&name, &user, &host, port);
                 }
                 _ => {
