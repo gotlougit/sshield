@@ -1,6 +1,7 @@
 use async_trait::async_trait;
-use clap::{Parser, Subcommand};
-use db::ProcessedKey;
+use clap::Parser;
+use cli::{Args, Command};
+use db::{get_all_keys, ProcessedKey};
 use russh::{client, ChannelId};
 use russh_keys::{
     key::{KeyPair, PublicKey},
@@ -8,67 +9,8 @@ use russh_keys::{
 };
 use std::sync::Arc;
 
+mod cli;
 mod db;
-
-#[derive(Subcommand, PartialEq)]
-enum Command {
-    /// Generate a key for a particular service
-    GenKey {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-        /// Username
-        #[arg(required = true)]
-        user: String,
-        /// Hostname
-        #[arg(required = true)]
-        host: String,
-        /// Port (optional)
-        #[arg(short, long, default_value_t = 22)]
-        port: u16,
-    },
-    /// Show a key for a particular service
-    ShowKey {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-    },
-    /// Delete a key for a particular service
-    DeleteKey {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-    },
-    /// Create a new key for a pre-existing service
-    UpdateKey {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-        /// Username
-        #[arg(long, required = false)]
-        user: Option<String>,
-        /// Hostname
-        #[arg(long, required = false)]
-        host: Option<String>,
-        /// Port (optional)
-        #[arg(long, required = false)]
-        port: Option<u16>,
-    },
-    /// Connect to a service using its nickname
-    Connect {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-    },
-}
-
-/// Rust reimplementation of SSH client with sandboxing
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    #[command(subcommand)]
-    command: Option<Command>,
-}
 
 struct Client {}
 
@@ -155,9 +97,17 @@ async fn main() {
                 } => {
                     gen_key(&name, &user, &host, port);
                 }
-                Command::ShowKey { name } => {
-                    show_key(&name).unwrap();
-                }
+                Command::ShowKey { name } => match name {
+                    Some(name) => {
+                        show_key(&name).unwrap();
+                    }
+                    None => {
+                        let keys = get_all_keys().unwrap();
+                        for key in keys.iter() {
+                            println!("{key}");
+                        }
+                    }
+                },
                 _ => {
                     println!("hello");
                 }
