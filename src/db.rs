@@ -70,7 +70,7 @@ pub(crate) fn open_db() -> Result<Connection> {
     }
 }
 
-pub(crate) fn insert_key<'a>(
+pub(crate) fn insert_key(
     nick: &str,
     user: &str,
     host: &str,
