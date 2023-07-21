@@ -123,6 +123,20 @@ fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
     println!("{} {} {}", cipher, pubkey.public_key_base64(), nick);
 }
 
+fn show_key(nick: &str) {
+    match crate::db::get_key(nick) {
+        Ok(res) => {
+            let key = russh_keys::pkcs8::decode_pkcs8(res.get_key(), None).unwrap();
+            let pubkey = key.public_key_base64();
+            let cipher = key.name();
+            println!("{cipher} {pubkey} {nick}");
+        }
+        Err(_) => {
+            eprintln!("That key doesn't exist, try creating it?");
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
@@ -139,6 +153,9 @@ async fn main() {
                     port,
                 } => {
                     gen_key(&name, &user, &host, port);
+                }
+                Command::ShowKey { name } => {
+                    show_key(&name);
                 }
                 _ => {
                     println!("hello");
