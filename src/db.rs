@@ -1,4 +1,5 @@
 use rusqlite::{params, Connection, Result};
+use std::fmt::Display;
 
 /// Row representation
 pub(crate) struct StructuredKey {
@@ -13,6 +14,17 @@ pub(crate) struct StructuredKey {
 impl StructuredKey {
     pub fn get_key(&self) -> &[u8] {
         &self.encoded_key
+    }
+}
+
+impl Display for StructuredKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(
+            f,
+            "SSH key '{}' using cipher '{}'",
+            self.nickname, self.cipher
+        )?;
+        Ok(())
     }
 }
 
