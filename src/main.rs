@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
-use db::StructuredKey;
+use db::ProcessedKey;
 use russh::{client, ChannelId};
 use russh_keys::{
     key::{KeyPair, PublicKey},
@@ -101,11 +101,11 @@ async fn connect(nick: &str) {
     let sh = Client {};
 
     let structkey = show_key(nick).unwrap();
-    let key = pkcs8::decode_pkcs8(structkey.get_key(), None).unwrap();
-    let (user, host, port) = structkey.get_conn_info();
-    let mut session = client::connect(config, (host, port), sh).await.unwrap();
+    let mut session = client::connect(config, (structkey.host, structkey.port), sh)
+        .await
+        .unwrap();
     if session
-        .authenticate_publickey(user, Arc::new(key))
+        .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
         .await
         .unwrap()
     {
@@ -119,17 +119,13 @@ async fn connect(nick: &str) {
 
 fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
     let key = KeyPair::generate_ed25519().unwrap();
-    let cipher = key.name();
-    let pubkey = key.clone_public_key().unwrap();
     // store this encoded key in db
     let encoded_key = pkcs8::encode_pkcs8(&key);
-    crate::db::insert_key(nick, user, host, port, encoded_key, cipher);
-    println!("Generated SSH key '{nick}' for {user}@{host}:{port}");
-    println!("Public key:");
-    println!("{} {} {}", cipher, pubkey.public_key_base64(), nick);
+    crate::db::insert_key(nick, user, host, port, encoded_key);
+    show_key(nick).unwrap();
 }
 
-fn show_key(nick: &str) -> Result<StructuredKey, rusqlite::Error> {
+fn show_key(nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
     match crate::db::get_key(nick) {
         Ok(res) => {
             println!("{res}");
