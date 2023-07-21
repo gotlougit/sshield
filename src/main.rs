@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use bat::PrettyPrinter;
 use clap::Parser;
 use cli::{Args, Command};
 use db::ProcessedKey;
@@ -25,7 +26,12 @@ impl client::Handler for Client {
         self,
         server_public_key: &PublicKey,
     ) -> Result<(Self, bool), Self::Error> {
-        println!("check_server_key: {:#?}", server_public_key);
+        let msg = format!("check_server_key: {:#?}", server_public_key);
+        let msg_raw = msg.as_bytes();
+        PrettyPrinter::new()
+            .input_from_bytes(msg_raw)
+            .print()
+            .unwrap();
         Ok((self, true))
     }
 
