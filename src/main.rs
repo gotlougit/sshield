@@ -120,6 +120,14 @@ async fn main() {
                 Command::Connect { name } => {
                     println!("{name}");
                 }
+                Command::GenKey {
+                    name,
+                    user,
+                    host,
+                    port,
+                } => {
+                    println!("{name}, {user}@{host}:{port}");
+                }
                 _ => {
                     println!("hello");
                 }
