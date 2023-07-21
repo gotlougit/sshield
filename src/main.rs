@@ -4,6 +4,8 @@ use russh::{client, ChannelId};
 use russh_keys::{key, load_secret_key};
 use std::sync::Arc;
 
+mod db;
+
 #[derive(Subcommand, PartialEq)]
 enum Command {
     /// Generate a key for a particular service
