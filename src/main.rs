@@ -56,25 +56,29 @@ impl KeyMgr {
     async fn connect(&self, nick: &str) {
         let config = Arc::new(russh::client::Config::default());
 
-        let structkey = self.show_key(nick).unwrap();
-        let mut session = client::connect(
-            config,
-            (structkey.host, structkey.port),
-            self.client.clone(),
-        )
-        .await
-        .unwrap();
-        if session
-            .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
-            .await
-            .unwrap()
-        {
-            let mut channel = session.channel_open_session().await.unwrap();
-            channel.request_shell(true).await.unwrap();
-            if let Some(msg) = channel.wait().await {
-                println!("{:#?}", msg);
+        match self.show_key(nick) {
+            Ok(structkey) => {
+                let mut session = client::connect(
+                    config,
+                    (structkey.host, structkey.port),
+                    self.client.clone(),
+                )
+                .await
+                .unwrap();
+                if session
+                    .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
+                    .await
+                    .unwrap()
+                {
+                    let mut channel = session.channel_open_session().await.unwrap();
+                    channel.request_shell(true).await.unwrap();
+                    if let Some(msg) = channel.wait().await {
+                        println!("{:#?}", msg);
+                    }
+                }
             }
-        }
+            Err(_) => {}
+        };
     }
 
     fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) {
