@@ -1,7 +1,7 @@
 use async_trait::async_trait;
-use bat::PrettyPrinter;
 use clap::Parser;
 use cli::{Args, Command};
+use colored::Colorize;
 use db::ProcessedKey;
 use rusqlite::Connection;
 use russh::{client, ChannelId};
@@ -27,11 +27,8 @@ impl client::Handler for Client {
         server_public_key: &PublicKey,
     ) -> Result<(Self, bool), Self::Error> {
         let msg = format!("check_server_key: {:#?}", server_public_key);
-        let msg_raw = msg.as_bytes();
-        PrettyPrinter::new()
-            .input_from_bytes(msg_raw)
-            .print()
-            .unwrap();
+        let coloredmsg = msg.white();
+        println!("{coloredmsg}");
         Ok((self, true))
     }
 
@@ -41,7 +38,8 @@ impl client::Handler for Client {
         data: &[u8],
         session: client::Session,
     ) -> Result<(Self, client::Session), Self::Error> {
-        PrettyPrinter::new().input_from_bytes(data).print().unwrap();
+        let strrep = std::str::from_utf8(data).unwrap().white();
+        println!("{strrep}");
         Ok((self, session))
     }
 }
@@ -80,11 +78,8 @@ impl KeyMgr {
                     channel.request_shell(true).await.unwrap();
                     if let Some(msg) = channel.wait().await {
                         let strmsg = format!("{:#?}", msg);
-                        let msg_raw = strmsg.as_bytes();
-                        PrettyPrinter::new()
-                            .input_from_bytes(msg_raw)
-                            .print()
-                            .unwrap();
+                        let coloredmsg = strmsg.white();
+                        println!("{coloredmsg}");
                     }
                 }
             }
@@ -103,15 +98,13 @@ impl KeyMgr {
     fn show_key(&self, nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
         match crate::db::get_key(&self.db, nick) {
             Ok(res) => {
-                let msg_raw = format!("{res}");
-                PrettyPrinter::new()
-                    .input_from_bytes(msg_raw.as_bytes())
-                    .print()
-                    .unwrap();
+                let msg_raw = format!("{res}").white();
+                println!("{msg_raw}");
                 return Ok(res);
             }
             Err(e) => {
-                eprintln!("That key doesn't exist, try creating it?");
+                let msg = "That key doesn't exist, try creating it?".red();
+                println!("{msg}");
                 return Err(e);
             }
         }
@@ -146,11 +139,8 @@ async fn main() {
                     None => {
                         let keys = mgr.show_all_keys();
                         for key in keys.iter() {
-                            let msg = format!("{key}");
-                            PrettyPrinter::new()
-                                .input_from_bytes(msg.as_bytes())
-                                .print()
-                                .unwrap();
+                            let msg = format!("{key}").white();
+                            println!("{msg}");
                         }
                     }
                 },
