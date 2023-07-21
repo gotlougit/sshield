@@ -110,3 +110,26 @@ pub(crate) fn get_key(nick: &str) -> Result<ProcessedKey> {
         Ok(row.process())
     })
 }
+
+/// Get all the keys from the database
+pub(crate) fn get_all_keys() -> Result<Vec<ProcessedKey>, rusqlite::Error> {
+    let db = open_db()?;
+    let mut prepstatement = db.prepare(
+        "SELECT
+        nickname, user, host, port, encoded_key
+        FROM keys",
+    )?;
+    let rows: Result<Vec<ProcessedKey>, rusqlite::Error> = prepstatement
+        .query_map([], |row| {
+            let row = RawKey {
+                nickname: row.get(0)?,
+                user: row.get(1)?,
+                host: row.get(2)?,
+                port: row.get(3)?,
+                encoded_key: row.get(4)?,
+            };
+            Ok(row.process())
+        })?
+        .collect();
+    rows
+}
