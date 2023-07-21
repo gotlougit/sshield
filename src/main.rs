@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
 use russh::{client, ChannelId};
-use russh_keys::{key, load_secret_key};
+use russh_keys::{encode_pkcs8_pem, key, load_secret_key, PublicKeyBase64};
 use std::sync::Arc;
 
 mod db;
@@ -111,6 +111,18 @@ async fn connect(user: &str, host: &str, keyfile: &str) {
     }
 }
 
+fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
+    let key = russh_keys::key::KeyPair::generate_ed25519().unwrap();
+    let cipher = key.name();
+    let pubkey = key.clone_public_key().unwrap();
+    // store this encoded key in db
+    let encoded_key = russh_keys::pkcs8::encode_pkcs8(&key);
+    crate::db::insert_key(nick, user, host, port, encoded_key, cipher);
+    println!("Generated SSH key '{nick}' for {user}@{host}:{port}");
+    println!("Public key:");
+    println!("{} {} {}", cipher, pubkey.public_key_base64(), nick);
+}
+
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
@@ -127,6 +139,7 @@ async fn main() {
                     port,
                 } => {
                     println!("{name}, {user}@{host}:{port}");
+                    gen_key(&name, &user, &host, port);
                 }
                 _ => {
                     println!("hello");
