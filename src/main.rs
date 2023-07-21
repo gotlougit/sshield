@@ -41,7 +41,7 @@ impl client::Handler for Client {
         data: &[u8],
         session: client::Session,
     ) -> Result<(Self, client::Session), Self::Error> {
-        println!("{}", std::str::from_utf8(data).unwrap());
+        PrettyPrinter::new().input_from_bytes(data).print().unwrap();
         Ok((self, session))
     }
 }
@@ -79,7 +79,12 @@ impl KeyMgr {
                     let mut channel = session.channel_open_session().await.unwrap();
                     channel.request_shell(true).await.unwrap();
                     if let Some(msg) = channel.wait().await {
-                        println!("{:#?}", msg);
+                        let strmsg = format!("{:#?}", msg);
+                        let msg_raw = strmsg.as_bytes();
+                        PrettyPrinter::new()
+                            .input_from_bytes(msg_raw)
+                            .print()
+                            .unwrap();
                     }
                 }
             }
@@ -98,7 +103,11 @@ impl KeyMgr {
     fn show_key(&self, nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
         match crate::db::get_key(&self.db, nick) {
             Ok(res) => {
-                println!("{res}");
+                let msg_raw = format!("{res}");
+                PrettyPrinter::new()
+                    .input_from_bytes(msg_raw.as_bytes())
+                    .print()
+                    .unwrap();
                 return Ok(res);
             }
             Err(e) => {
@@ -137,7 +146,11 @@ async fn main() {
                     None => {
                         let keys = mgr.show_all_keys();
                         for key in keys.iter() {
-                            println!("{key}");
+                            let msg = format!("{key}");
+                            PrettyPrinter::new()
+                                .input_from_bytes(msg.as_bytes())
+                                .print()
+                                .unwrap();
                         }
                     }
                 },
