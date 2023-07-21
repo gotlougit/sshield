@@ -10,6 +10,12 @@ pub(crate) struct StructuredKey {
     cipher: String,
 }
 
+impl StructuredKey {
+    pub fn get_key(&self) -> &[u8] {
+        &self.encoded_key
+    }
+}
+
 /// Opens the database and creates the table if necessary
 pub(crate) fn open_db() -> Result<Connection> {
     match Connection::open("./keys.db3") {
