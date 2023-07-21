@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result};
+use rusqlite::{params, Connection, Result};
 
 /// Row representation
 pub(crate) struct StructuredKey {
@@ -6,8 +6,7 @@ pub(crate) struct StructuredKey {
     user: String,
     host: String,
     port: u16,
-    pubkey: String,
-    private_key: String,
+    encoded_key: Vec<u8>,
     cipher: String,
 }
 
@@ -21,8 +20,7 @@ pub(crate) fn open_db() -> Result<Connection> {
                     user VARCHAR,
                     host VARCHAR,
                     port INT,
-                    pubkey VARCHAR,
-                    private_key VARCHAR,
+                    encoded_key BLOB,
                     cipher VARCHAR
                 )",
                 [],
@@ -39,26 +37,24 @@ pub(crate) fn insert_key<'a>(
     user: &str,
     host: &str,
     port: u16,
-    pubkey: &str,
-    private_key: &str,
+    encoded_key: Vec<u8>,
     cipher: &str,
 ) -> bool {
     let db = open_db().unwrap();
     let mut prepstatement = db
         .prepare(
             "INSERT INTO keys (
-        nickname, user, host, port, port, pubkey, private_key, cipher 
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        nickname, user, host, port, encoded_key, cipher
+        ) VALUES (?1, ?2, ?3, ?4, (?5), ?6)",
         )
         .unwrap();
-    match prepstatement.execute([
+    match prepstatement.execute(params![
         nick,
         user,
         host,
         &port.to_string(),
-        pubkey,
-        private_key,
-        cipher,
+        encoded_key,
+        cipher
     ]) {
         Ok(_) => true,
         Err(_) => false,
@@ -70,7 +66,7 @@ pub(crate) fn get_key(nick: &str) -> Result<StructuredKey> {
     let db = open_db()?;
     let mut prepstatement = db.prepare(
         "SELECT 
-        nickname, user, host, port, port, pubkey, private_key, cipher 
+        nickname, user, host, port, encoded_key, cipher
         FROM keys WHERE nickname = ?1",
     )?;
     prepstatement.query_row([nick], |row| {
@@ -79,9 +75,8 @@ pub(crate) fn get_key(nick: &str) -> Result<StructuredKey> {
             user: row.get(1)?,
             host: row.get(2)?,
             port: row.get(3)?,
-            pubkey: row.get(4)?,
-            private_key: row.get(5)?,
-            cipher: row.get(6)?,
+            encoded_key: row.get(4)?,
+            cipher: row.get(5)?,
         })
     })
 }
