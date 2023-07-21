@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use clap::Parser;
 use cli::{Args, Command};
-use db::{get_all_keys, ProcessedKey};
+use db::ProcessedKey;
+use rusqlite::Connection;
 use russh::{client, ChannelId};
 use russh_keys::{
     key::{KeyPair, PublicKey},
@@ -12,6 +13,7 @@ use std::sync::Arc;
 mod cli;
 mod db;
 
+#[derive(Clone)]
 struct Client {}
 
 #[async_trait]
@@ -38,56 +40,77 @@ impl client::Handler for Client {
     }
 }
 
-async fn connect(nick: &str) {
-    let config = Arc::new(russh::client::Config::default());
-    let sh = Client {};
+struct KeyMgr {
+    db: Connection,
+    client: Client,
+}
 
-    let structkey = show_key(nick).unwrap();
-    let mut session = client::connect(config, (structkey.host, structkey.port), sh)
+impl KeyMgr {
+    fn init() -> Self {
+        KeyMgr {
+            db: crate::db::open_db().unwrap(),
+            client: Client {},
+        }
+    }
+
+    async fn connect(&self, nick: &str) {
+        let config = Arc::new(russh::client::Config::default());
+
+        let structkey = self.show_key(nick).unwrap();
+        let mut session = client::connect(
+            config,
+            (structkey.host, structkey.port),
+            self.client.clone(),
+        )
         .await
         .unwrap();
-    if session
-        .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
-        .await
-        .unwrap()
-    {
-        let mut channel = session.channel_open_session().await.unwrap();
-        channel.request_shell(true).await.unwrap();
-        if let Some(msg) = channel.wait().await {
-            println!("{:#?}", msg);
+        if session
+            .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
+            .await
+            .unwrap()
+        {
+            let mut channel = session.channel_open_session().await.unwrap();
+            channel.request_shell(true).await.unwrap();
+            if let Some(msg) = channel.wait().await {
+                println!("{:#?}", msg);
+            }
         }
     }
-}
 
-fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
-    let key = KeyPair::generate_ed25519().unwrap();
-    // store this encoded key in db
-    let encoded_key = pkcs8::encode_pkcs8(&key);
-    crate::db::insert_key(nick, user, host, port, encoded_key);
-    show_key(nick).unwrap();
-}
+    fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) {
+        let key = KeyPair::generate_ed25519().unwrap();
+        // store this encoded key in db
+        let encoded_key = pkcs8::encode_pkcs8(&key);
+        crate::db::insert_key(&self.db, nick, user, host, port, encoded_key);
+        self.show_key(nick).unwrap();
+    }
 
-fn show_key(nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
-    match crate::db::get_key(nick) {
-        Ok(res) => {
-            println!("{res}");
-            return Ok(res);
-        }
-        Err(e) => {
-            eprintln!("That key doesn't exist, try creating it?");
-            return Err(e);
+    fn show_key(&self, nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
+        match crate::db::get_key(&self.db, nick) {
+            Ok(res) => {
+                println!("{res}");
+                return Ok(res);
+            }
+            Err(e) => {
+                eprintln!("That key doesn't exist, try creating it?");
+                return Err(e);
+            }
         }
     }
-}
 
+    fn show_all_keys(&self) -> Vec<ProcessedKey> {
+        crate::db::get_all_keys(&self.db).unwrap()
+    }
+}
 #[tokio::main]
 async fn main() {
+    let mgr = KeyMgr::init();
     let args = Args::parse();
     match args.command {
         Some(cmd) => {
             match cmd {
                 Command::Connect { name } => {
-                    connect(&name).await;
+                    mgr.connect(&name).await;
                 }
                 Command::GenKey {
                     name,
@@ -95,14 +118,14 @@ async fn main() {
                     host,
                     port,
                 } => {
-                    gen_key(&name, &user, &host, port);
+                    mgr.gen_key(&name, &user, &host, port);
                 }
                 Command::ShowKey { name } => match name {
                     Some(name) => {
-                        show_key(&name).unwrap();
+                        mgr.show_key(&name).unwrap();
                     }
                     None => {
-                        let keys = get_all_keys().unwrap();
+                        let keys = mgr.show_all_keys();
                         for key in keys.iter() {
                             println!("{key}");
                         }
