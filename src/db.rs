@@ -71,13 +71,13 @@ pub(crate) fn open_db() -> Result<Connection> {
 }
 
 pub(crate) fn insert_key(
+    db: &Connection,
     nick: &str,
     user: &str,
     host: &str,
     port: u16,
     encoded_key: Vec<u8>,
 ) -> bool {
-    let db = open_db().unwrap();
     let mut prepstatement = db
         .prepare(
             "INSERT INTO keys (
@@ -92,8 +92,7 @@ pub(crate) fn insert_key(
 }
 
 /// Get the required key from the database
-pub(crate) fn get_key(nick: &str) -> Result<ProcessedKey> {
-    let db = open_db()?;
+pub(crate) fn get_key(db: &Connection, nick: &str) -> Result<ProcessedKey> {
     let mut prepstatement = db.prepare(
         "SELECT 
         nickname, user, host, port, encoded_key
@@ -112,8 +111,7 @@ pub(crate) fn get_key(nick: &str) -> Result<ProcessedKey> {
 }
 
 /// Get all the keys from the database
-pub(crate) fn get_all_keys() -> Result<Vec<ProcessedKey>, rusqlite::Error> {
-    let db = open_db()?;
+pub(crate) fn get_all_keys(db: &Connection) -> Result<Vec<ProcessedKey>, rusqlite::Error> {
     let mut prepstatement = db.prepare(
         "SELECT
         nickname, user, host, port, encoded_key
