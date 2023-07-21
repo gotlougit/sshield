@@ -1,1 +1,4 @@
 /target
+/.direnv
+*.db3
+flake.nix
