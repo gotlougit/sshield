@@ -15,6 +15,9 @@ impl StructuredKey {
     pub fn get_key(&self) -> &[u8] {
         &self.encoded_key
     }
+    pub fn get_conn_info(&self) -> (&str, &str, u16) {
+        (&self.user, &self.host, self.port)
+    }
 }
 
 impl Display for StructuredKey {

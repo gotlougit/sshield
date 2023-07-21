@@ -1,7 +1,11 @@
 use async_trait::async_trait;
 use clap::{Parser, Subcommand};
 use russh::{client, ChannelId};
-use russh_keys::{encode_pkcs8_pem, key, load_secret_key, PublicKeyBase64};
+use russh_keys::{
+    encode_pkcs8_pem,
+    key::{self, KeyPair},
+    load_secret_key, PublicKeyBase64,
+};
 use std::sync::Arc;
 
 mod db;
@@ -92,11 +96,11 @@ impl client::Handler for Client {
     }
 }
 
-async fn connect(user: &str, host: &str, keyfile: &str) {
+async fn connect(nick: &str) {
     let config = Arc::new(russh::client::Config::default());
     let sh = Client {};
 
-    let key = load_secret_key(keyfile, None).unwrap();
+    let key = show_key(nick).unwrap();
     let mut session = client::connect(config, (host, 22), sh).await.unwrap();
     if session
         .authenticate_publickey(user, Arc::new(key))
@@ -123,13 +127,17 @@ fn gen_key(nick: &str, user: &str, host: &str, port: u16) {
     println!("{} {} {}", cipher, pubkey.public_key_base64(), nick);
 }
 
-fn show_key(nick: &str) {
+fn show_key(nick: &str) -> Result<KeyPair, rusqlite::Error> {
     match crate::db::get_key(nick) {
         Ok(res) => {
             println!("{res}");
+            let rawkey = res.get_key();
+            let key = russh_keys::pkcs8::decode_pkcs8(rawkey, None).unwrap();
+            return Ok(key);
         }
-        Err(_) => {
+        Err(e) => {
             eprintln!("That key doesn't exist, try creating it?");
+            return Err(e);
         }
     }
 }
