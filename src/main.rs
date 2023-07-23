@@ -1,55 +1,20 @@
-use async_trait::async_trait;
 use clap::Parser;
 use cli::{Args, Command};
 use db::ProcessedKey;
 use rusqlite::Connection;
-use russh::{client, ChannelId, Pty};
-use russh_keys::{
-    key::{KeyPair, PublicKey},
-    pkcs8,
-};
-use std::sync::Arc;
+use russh_keys::{key::KeyPair, pkcs8};
 
 mod cli;
 mod db;
 
-#[derive(Clone)]
-struct Client {}
-
-#[async_trait]
-impl client::Handler for Client {
-    type Error = anyhow::Error;
-
-    // TODO: maybe check this against known_hosts
-    async fn check_server_key(
-        self,
-        server_public_key: &PublicKey,
-    ) -> Result<(Self, bool), Self::Error> {
-        Ok((self, true))
-    }
-
-    async fn data(
-        self,
-        _channel: ChannelId,
-        data: &[u8],
-        session: client::Session,
-    ) -> Result<(Self, client::Session), Self::Error> {
-        let strrep = std::str::from_utf8(data).unwrap();
-        println!("{strrep}");
-        Ok((self, session))
-    }
-}
-
 struct KeyMgr {
     db: Connection,
-    client: Client,
 }
 
 impl KeyMgr {
     fn init() -> Self {
         KeyMgr {
             db: crate::db::open_db().unwrap(),
-            client: Client {},
         }
     }
 
@@ -84,8 +49,8 @@ impl KeyMgr {
         }
     }
 }
-#[tokio::main]
-async fn main() {
+
+fn main() {
     let mgr = KeyMgr::init();
     let args = Args::parse();
     match args.command {
