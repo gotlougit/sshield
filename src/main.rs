@@ -86,16 +86,18 @@ impl KeyMgr {
                         .await
                         .unwrap();
                     channel.request_shell(false).await.unwrap();
-                    while let Some(msg) = channel.wait().await {
-                        match msg {
-                            russh::ChannelMsg::Data { data } => {
-                                let strmsg = format!("{:#?}", data);
-                                let coloredmsg = strmsg.white();
-                                println!("{coloredmsg}");
+                    loop {
+                        channel.data(&b"echo hi\n"[..]).await.unwrap();
+                        if let Some(msg) = channel.wait().await {
+                            match msg {
+                                russh::ChannelMsg::Data { data } => {
+                                    let strmsg = format!("{:#?}", data);
+                                    let coloredmsg = strmsg.white();
+                                    println!("{coloredmsg}");
+                                }
+                                _ => {}
                             }
-                            _ => {}
                         }
-                        channel.data(&b"echo hi"[..]).await.unwrap();
                     }
                 }
             }
