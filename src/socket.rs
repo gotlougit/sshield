@@ -31,18 +31,16 @@ impl Socket {
         proposed_pass == self.pass
     }
 
-    pub fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) {
+    pub fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) -> bool {
         let key = KeyPair::generate_ed25519().unwrap();
         // store this encoded key in db
         let encoded_key = pkcs8::encode_pkcs8(&key);
-        crate::db::insert_key(&self.conn, nick, user, host, port, encoded_key);
-        self.show_key(nick).unwrap();
+        crate::db::insert_key(&self.conn, nick, user, host, port, encoded_key)
     }
 
     pub fn show_key(&self, nick: &str) -> Result<ProcessedKey> {
         match crate::db::get_key(&self.conn, nick) {
             Ok(res) => {
-                println!("{res}");
                 return Ok(res);
             }
             Err(e) => {
