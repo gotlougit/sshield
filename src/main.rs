@@ -93,13 +93,9 @@ impl KeyMgr {
                                 let coloredmsg = strmsg.white();
                                 println!("{coloredmsg}");
                             }
-                            _ => {
-                                let strmsg = format!("{:#?}", msg);
-                                let coloredmsg = strmsg.red();
-                                println!("{coloredmsg}");
-                            }
+                            _ => {}
                         }
-                        channel.data(&b"hello world\n"[..]).await.unwrap();
+                        channel.data(&b"echo hi"[..]).await.unwrap();
                     }
                 }
             }
