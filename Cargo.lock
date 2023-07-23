@@ -1272,7 +1272,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ssh-rs"
+name = "sshield"
 version = "0.1.0"
 dependencies = [
  "anyhow",
