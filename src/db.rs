@@ -110,6 +110,15 @@ pub(crate) fn get_key(db: &Connection, nick: &str) -> Result<ProcessedKey> {
     })
 }
 
+/// Delete the required key from the database
+pub(crate) fn del_key(db: &Connection, nick: &str) -> Result<usize, rusqlite::Error> {
+    let mut prepstatement = db.prepare(
+        "DELETE FROM keys
+        WHERE nickname = ?1",
+    )?;
+    prepstatement.execute([nick])
+}
+
 /// Get all the keys from the database
 pub(crate) fn get_all_keys(db: &Connection) -> Result<Vec<ProcessedKey>, rusqlite::Error> {
     let mut prepstatement = db.prepare(
