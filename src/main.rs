@@ -4,7 +4,7 @@ use cli::{Args, Command};
 use colored::Colorize;
 use db::ProcessedKey;
 use rusqlite::Connection;
-use russh::{client, ChannelId};
+use russh::{client, ChannelId, Pty};
 use russh_keys::{
     key::{KeyPair, PublicKey},
     pkcs8,
@@ -73,13 +73,13 @@ impl KeyMgr {
                 {
                     let mut channel = session.channel_open_session().await.unwrap();
                     let mode = [
-                        (russh::Pty::ECHOCTL, 0),
-                        (russh::Pty::ICANON, 1),
-                        (russh::Pty::ISIG, 1),
-                        (russh::Pty::ISTRIP, 0),
-                        (russh::Pty::IXON, 0),
-                        (russh::Pty::IXOFF, 0),
-                        (russh::Pty::VFLUSH, 1),
+                        (Pty::ECHOCTL, 0),
+                        (Pty::ICANON, 1),
+                        (Pty::ISIG, 1),
+                        (Pty::ISTRIP, 0),
+                        (Pty::IXON, 0),
+                        (Pty::IXOFF, 0),
+                        (Pty::VFLUSH, 1),
                     ];
                     channel
                         .request_pty(false, "xterm", 80, 24, 10, 10, &mode)
