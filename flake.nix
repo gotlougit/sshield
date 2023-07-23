@@ -8,6 +8,8 @@
        defaultPackage.${system} = mkShell {
         name = "rustdev";
         buildInputs = [
+          pkgs.pkgconfig
+          pkgs.openssl.dev
           pkgs.cargo
           pkgs.rustc
           pkgs.rustfmt
