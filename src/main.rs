@@ -72,11 +72,34 @@ impl KeyMgr {
                     .unwrap()
                 {
                     let mut channel = session.channel_open_session().await.unwrap();
-                    channel.request_shell(true).await.unwrap();
-                    if let Some(msg) = channel.wait().await {
-                        let strmsg = format!("{:#?}", msg);
-                        let coloredmsg = strmsg.white();
-                        println!("{coloredmsg}");
+                    let mode = [
+                        (russh::Pty::ECHOCTL, 0),
+                        (russh::Pty::ICANON, 1),
+                        (russh::Pty::ISIG, 1),
+                        (russh::Pty::ISTRIP, 0),
+                        (russh::Pty::IXON, 0),
+                        (russh::Pty::IXOFF, 0),
+                        (russh::Pty::VFLUSH, 1),
+                    ];
+                    channel
+                        .request_pty(false, "xterm", 80, 24, 10, 10, &mode)
+                        .await
+                        .unwrap();
+                    channel.request_shell(false).await.unwrap();
+                    while let Some(msg) = channel.wait().await {
+                        match msg {
+                            russh::ChannelMsg::Data { data } => {
+                                let strmsg = format!("{:#?}", data);
+                                let coloredmsg = strmsg.white();
+                                println!("{coloredmsg}");
+                            }
+                            _ => {
+                                let strmsg = format!("{:#?}", msg);
+                                let coloredmsg = strmsg.red();
+                                println!("{coloredmsg}");
+                            }
+                        }
+                        channel.data(&b"hello world\n"[..]).await.unwrap();
                     }
                 }
             }
