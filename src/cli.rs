@@ -45,12 +45,6 @@ pub enum Command {
         #[arg(long, required = false)]
         port: Option<u16>,
     },
-    /// Connect to a service using its nickname
-    Connect {
-        /// key nickname
-        #[arg(required = true)]
-        name: String,
-    },
 }
 
 /// Rust reimplementation of SSH client with sandboxing
