@@ -19,6 +19,8 @@ impl Socket {
     pub fn init(pass: &str) -> Result<Self> {
         let listener = UnixListener::bind(SOCKNAME)?;
         let conn = db::open_db()?;
+        // Here we would ideally place some decryption mechanisms to handle
+        // sensitive key data
         Ok(Self {
             listener,
             conn,
