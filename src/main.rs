@@ -82,7 +82,7 @@ impl KeyMgr {
                         (Pty::VFLUSH, 1),
                     ];
                     channel
-                        .request_pty(false, "xterm", 80, 24, 10, 10, &mode)
+                        .request_pty(false, "xterm-256color", 80, 24, 10, 10, &mode)
                         .await
                         .unwrap();
                     channel.request_shell(false).await.unwrap();
