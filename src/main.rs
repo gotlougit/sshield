@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use clap::Parser;
 use cli::{Args, Command};
-use colored::Colorize;
 use db::ProcessedKey;
 use rusqlite::Connection;
 use russh::{client, ChannelId, Pty};
@@ -35,7 +34,7 @@ impl client::Handler for Client {
         data: &[u8],
         session: client::Session,
     ) -> Result<(Self, client::Session), Self::Error> {
-        let strrep = std::str::from_utf8(data).unwrap().white();
+        let strrep = std::str::from_utf8(data).unwrap();
         println!("{strrep}");
         Ok((self, session))
     }
@@ -112,12 +111,12 @@ impl KeyMgr {
     fn show_key(&self, nick: &str) -> Result<ProcessedKey, rusqlite::Error> {
         match crate::db::get_key(&self.db, nick) {
             Ok(res) => {
-                let msg_raw = format!("{res}").white();
+                let msg_raw = format!("{res}");
                 println!("{msg_raw}");
                 return Ok(res);
             }
             Err(e) => {
-                let msg = "That key doesn't exist, try creating it?".red();
+                let msg = "That key doesn't exist, try creating it?";
                 println!("{msg}");
                 return Err(e);
             }
@@ -127,7 +126,7 @@ impl KeyMgr {
     fn show_all_keys(&self) {
         let keys = crate::db::get_all_keys(&self.db).unwrap();
         for key in keys.iter() {
-            let msg = format!("{key}").white();
+            let msg = format!("{key}");
             println!("{msg}");
         }
     }
