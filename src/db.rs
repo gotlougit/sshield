@@ -11,7 +11,7 @@ struct RawKey {
     encoded_key: Vec<u8>,
 }
 
-pub(crate) struct ProcessedKey {
+pub struct ProcessedKey {
     pub nickname: String,
     pub user: String,
     pub host: String,
