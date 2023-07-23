@@ -126,8 +126,12 @@ impl KeyMgr {
         }
     }
 
-    fn show_all_keys(&self) -> Vec<ProcessedKey> {
-        crate::db::get_all_keys(&self.db).unwrap()
+    fn show_all_keys(&self) {
+        let keys = crate::db::get_all_keys(&self.db).unwrap();
+        for key in keys.iter() {
+            let msg = format!("{key}").white();
+            println!("{msg}");
+        }
     }
 }
 #[tokio::main]
@@ -153,11 +157,7 @@ async fn main() {
                         mgr.show_key(&name).unwrap();
                     }
                     None => {
-                        let keys = mgr.show_all_keys();
-                        for key in keys.iter() {
-                            let msg = format!("{key}").white();
-                            println!("{msg}");
-                        }
+                        mgr.show_all_keys();
                     }
                 },
                 _ => {
