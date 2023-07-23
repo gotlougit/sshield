@@ -1,3 +1,9 @@
+// The database module is meant to be dumb and not understand much of the
+// key data at all.
+//
+// It will handle only encrypted blobs and not actually sensitive info
+// This compartmentalization will help reduce the chances of exposing anything
+// accidentally
 use rusqlite::{params, Connection, Result};
 use russh_keys::{key::KeyPair, PublicKeyBase64};
 use std::fmt::Display;
@@ -21,6 +27,8 @@ pub struct ProcessedKey {
     pub cipher: String,
 }
 
+// TODO: maybe not do this processing here?
+// We may encrypt this data in the future
 impl RawKey {
     pub fn process(&self) -> ProcessedKey {
         let keypair = russh_keys::pkcs8::decode_pkcs8(&self.encoded_key, None).unwrap();
