@@ -86,11 +86,11 @@ impl KeyMgr {
                         .await
                         .unwrap();
                     channel.request_shell(false).await.unwrap();
-                    crossterm::terminal::enable_raw_mode().unwrap();
+                    // crossterm::terminal::enable_raw_mode().unwrap();
                     loop {
                         let inputval = crate::input::get_line(&mut channel).await;
                         if inputval == "exit" {
-                            crossterm::terminal::disable_raw_mode().unwrap();
+                            // crossterm::terminal::disable_raw_mode().unwrap();
                             channel.close().await.unwrap();
                             return;
                         }
