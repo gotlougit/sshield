@@ -1,10 +1,22 @@
 use crate::db::{self, ProcessedKey};
 use anyhow::Result;
 use rusqlite::Connection;
-use russh_keys::{key::KeyPair, pkcs8};
-use std::{fs, os::unix::net::UnixListener};
+use russh_keys::{agent::server, key::KeyPair, pkcs8};
+use std::future::Future;
+use std::sync::Arc;
+use tokio::fs;
+use tokio::net::UnixListener;
 
 const SOCKNAME: &str = "/tmp/ssh-agent-2";
+
+#[derive(Clone)]
+struct SecureAgent {}
+
+impl server::Agent for SecureAgent {
+    fn confirm(self, _pk: Arc<KeyPair>) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
+        Box::new(futures::future::ready((self, true)))
+    }
+}
 
 pub struct Socket {
     listener: UnixListener,
@@ -13,6 +25,7 @@ pub struct Socket {
     // HAVE THIS BE PLAINTEXT, EVEN IN MEMORY!
     // PROTECT THESE BITS AT ALL COSTS!
     pass: String,
+    agent: SecureAgent,
 }
 
 impl Socket {
@@ -25,6 +38,7 @@ impl Socket {
             listener,
             conn,
             pass: pass.to_string(),
+            agent: SecureAgent {},
         })
     }
 
