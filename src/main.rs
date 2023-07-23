@@ -26,9 +26,6 @@ impl client::Handler for Client {
         self,
         server_public_key: &PublicKey,
     ) -> Result<(Self, bool), Self::Error> {
-        let msg = format!("check_server_key: {:#?}", server_public_key);
-        let coloredmsg = msg.white();
-        println!("{coloredmsg}");
         Ok((self, true))
     }
 
