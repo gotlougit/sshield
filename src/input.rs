@@ -1,11 +1,7 @@
 use crossterm::event::{self, KeyCode, KeyEvent};
-use crossterm::style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor};
-use crossterm::{execute, Result};
-use std::io::{stdout, Write};
 
-pub fn get_line() -> String {
+pub async fn get_line(channel: &mut russh::Channel<russh::client::Msg>) -> String {
     let mut out = String::new();
-    let mut stdout = stdout();
     loop {
         match event::read() {
             Ok(event::Event::Key(KeyEvent {
@@ -19,16 +15,10 @@ pub fn get_line() -> String {
                         KeyCode::Char(c) => {
                             let strchr = String::from(c);
                             out += &strchr;
-                            execute!(
-                                stdout,
-                                SetForegroundColor(Color::White),
-                                SetBackgroundColor(Color::Black)
-                            )
-                            .unwrap();
-                            execute!(stdout, Print(strchr)).unwrap();
-                            execute!(stdout, ResetColor).unwrap();
+                            channel.data(strchr.as_bytes()).await.unwrap();
                         }
                         KeyCode::Enter => {
+                            channel.data(&b"\n"[..]).await.unwrap();
                             break;
                         }
                         _ => {}
