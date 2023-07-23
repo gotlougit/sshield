@@ -12,6 +12,7 @@ use std::sync::Arc;
 
 mod cli;
 mod db;
+mod input;
 
 #[derive(Clone)]
 struct Client {}
@@ -86,13 +87,13 @@ impl KeyMgr {
                         .unwrap();
                     channel.request_shell(false).await.unwrap();
                     loop {
-                        let mut input = String::new();
-                        std::io::stdin().read_line(&mut input).unwrap();
-                        if input == "exit\n" {
+                        let mut inputval = crate::input::get_line();
+                        if inputval == "exit" {
                             channel.close().await.unwrap();
                             return;
                         }
-                        channel.data(input.as_bytes()).await.unwrap();
+                        inputval += "\n";
+                        channel.data(inputval.as_bytes()).await.unwrap();
                     }
                 }
             }
