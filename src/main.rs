@@ -34,6 +34,10 @@ fn main() {
                         }
                     }
                 },
+                Command::DeleteKey { name } => match mgr.delete_key(name.as_str()) {
+                    true => println!("Key deleted"),
+                    false => println!("Key could not be deleted"),
+                },
                 _ => {
                     println!("hello");
                 }
