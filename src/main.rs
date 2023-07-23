@@ -87,17 +87,10 @@ impl KeyMgr {
                         .unwrap();
                     channel.request_shell(false).await.unwrap();
                     loop {
-                        channel.data(&b"echo hi\n"[..]).await.unwrap();
-                        if let Some(msg) = channel.wait().await {
-                            match msg {
-                                russh::ChannelMsg::Data { data } => {
-                                    let strmsg = format!("{:#?}", data);
-                                    let coloredmsg = strmsg.white();
-                                    println!("{coloredmsg}");
-                                }
-                                _ => {}
-                            }
-                        }
+                        let mut input = String::new();
+                        std::io::stdin().read_line(&mut input).unwrap();
+                        input += "\n";
+                        channel.data(input.as_bytes()).await.unwrap();
                     }
                 }
             }
