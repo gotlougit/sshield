@@ -89,7 +89,10 @@ impl KeyMgr {
                     loop {
                         let mut input = String::new();
                         std::io::stdin().read_line(&mut input).unwrap();
-                        input += "\n";
+                        if input == "exit\n" {
+                            channel.close().await.unwrap();
+                            return;
+                        }
                         channel.data(input.as_bytes()).await.unwrap();
                     }
                 }
