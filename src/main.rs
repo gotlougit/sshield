@@ -12,7 +12,6 @@ use std::sync::Arc;
 
 mod cli;
 mod db;
-mod input;
 
 #[derive(Clone)]
 struct Client {}
@@ -54,53 +53,6 @@ impl KeyMgr {
         }
     }
 
-    async fn connect(&self, nick: &str) {
-        let config = Arc::new(russh::client::Config::default());
-
-        match self.show_key(nick) {
-            Ok(structkey) => {
-                let mut session = client::connect(
-                    config,
-                    (structkey.host, structkey.port),
-                    self.client.clone(),
-                )
-                .await
-                .unwrap();
-                if session
-                    .authenticate_publickey(structkey.user, Arc::new(structkey.keypair))
-                    .await
-                    .unwrap()
-                {
-                    let mut channel = session.channel_open_session().await.unwrap();
-                    let mode = [
-                        (Pty::ECHOCTL, 0),
-                        (Pty::ICANON, 1),
-                        (Pty::ISIG, 1),
-                        (Pty::ISTRIP, 0),
-                        (Pty::IXON, 0),
-                        (Pty::IXOFF, 0),
-                        (Pty::VFLUSH, 1),
-                    ];
-                    channel
-                        .request_pty(false, "xterm-256color", 80, 24, 10, 10, &mode)
-                        .await
-                        .unwrap();
-                    channel.request_shell(false).await.unwrap();
-                    // crossterm::terminal::enable_raw_mode().unwrap();
-                    loop {
-                        let inputval = crate::input::get_line(&mut channel).await;
-                        if inputval == "exit" {
-                            // crossterm::terminal::disable_raw_mode().unwrap();
-                            channel.close().await.unwrap();
-                            return;
-                        }
-                    }
-                }
-            }
-            Err(_) => {}
-        };
-    }
-
     fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) {
         let key = KeyPair::generate_ed25519().unwrap();
         // store this encoded key in db
@@ -139,9 +91,6 @@ async fn main() {
     match args.command {
         Some(cmd) => {
             match cmd {
-                Command::Connect { name } => {
-                    mgr.connect(&name).await;
-                }
                 Command::GenKey {
                     name,
                     user,
