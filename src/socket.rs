@@ -50,6 +50,10 @@ impl Socket {
         }
     }
 
+    pub fn delete_key(&self, nick: &str) -> bool {
+        crate::db::del_key(self.conn, nick).is_ok()
+    }
+
     pub fn show_all_keys(&self) -> Vec<ProcessedKey> {
         crate::db::get_all_keys(&self.conn).unwrap()
     }
