@@ -77,7 +77,7 @@ impl Socket {
         crate::db::get_all_keys(&self.conn).unwrap()
     }
 
-    pub fn close(&self) {
-        fs::remove_file(SOCKNAME).unwrap();
+    pub async fn close(&self) {
+        fs::remove_file(SOCKNAME).await.unwrap();
     }
 }

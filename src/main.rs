@@ -6,7 +6,8 @@ mod cli;
 mod db;
 mod socket;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let mgr = Socket::init("").unwrap();
     let args = Args::parse();
     match args.command {
@@ -45,5 +46,5 @@ fn main() {
         }
         None => {}
     };
-    mgr.close();
+    mgr.close().await;
 }
