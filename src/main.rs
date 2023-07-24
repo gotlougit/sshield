@@ -39,6 +39,10 @@ async fn main() {
                     true => println!("Key deleted"),
                     false => println!("Key could not be deleted, maybe it does not exist?"),
                 },
+                Command::Serve {} => {
+                    println!("Starting server process...");
+                    mgr.serve().await;
+                }
                 _ => {
                     println!("hello");
                 }
