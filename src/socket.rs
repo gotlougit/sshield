@@ -38,9 +38,15 @@ impl Socket {
     }
 
     pub async fn serve(&self) {
-        let locallistener = UnixListener::bind(SOCKNAME).unwrap();
-        let wrapper = tokio_stream::wrappers::UnixListenerStream::new(locallistener);
-        server::serve(wrapper, SecureAgent {}).await.unwrap();
+        match UnixListener::bind(SOCKNAME) {
+            Ok(listener) => {
+                let wrapper = tokio_stream::wrappers::UnixListenerStream::new(listener);
+                server::serve(wrapper, SecureAgent {}).await.unwrap();
+            }
+            Err(e) => {
+                eprintln!("Error while starting agent server: {}", e);
+            }
+        }
     }
 
     pub async fn add_all_keys(&self) {
