@@ -19,27 +19,28 @@ impl server::Agent for SecureAgent {
 }
 
 pub struct Socket {
-    listener: UnixListener,
     conn: Connection,
     // FIXME: DO NOT AND I REPEAT DO NOT
     // HAVE THIS BE PLAINTEXT, EVEN IN MEMORY!
     // PROTECT THESE BITS AT ALL COSTS!
     pass: String,
-    agent: SecureAgent,
 }
 
 impl Socket {
     pub fn init(pass: &str) -> Result<Self> {
-        let listener = UnixListener::bind(SOCKNAME)?;
         let conn = db::open_db()?;
         // Here we would ideally place some decryption mechanisms to handle
         // sensitive key data
         Ok(Self {
-            listener,
             conn,
             pass: pass.to_string(),
-            agent: SecureAgent {},
         })
+    }
+
+    pub async fn serve(&self) {
+        let locallistener = UnixListener::bind(SOCKNAME).unwrap();
+        let wrapper = tokio_stream::wrappers::UnixListenerStream::new(locallistener);
+        server::serve(wrapper, SecureAgent {}).await.unwrap();
     }
 
     // TODO: make this cryptographically secure
