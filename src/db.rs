@@ -125,7 +125,7 @@ pub(crate) fn update_key(
     host: &Option<String>,
     port: &Option<u16>,
     maybegenkey: &Option<bool>,
-) {
+) -> bool {
     // TODO: allow regeneration of key
     let mut statement = db
         .prepare(
@@ -137,7 +137,7 @@ pub(crate) fn update_key(
         ",
         )
         .unwrap();
-    statement.execute(params![user, host, port, nick]).unwrap();
+    statement.execute(params![user, host, port, nick]).is_ok()
 }
 
 /// Delete the required key from the database
