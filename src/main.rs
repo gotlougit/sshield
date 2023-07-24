@@ -46,6 +46,15 @@ async fn main() {
                 Command::AddKeysToServer {} => {
                     mgr.add_all_keys().await;
                 }
+                Command::UpdateKey {
+                    name,
+                    user,
+                    host,
+                    port,
+                    genkey,
+                } => {
+                    mgr.update_key(&name, &user, &host, &port, &genkey);
+                }
                 _ => {
                     println!("hello");
                 }
