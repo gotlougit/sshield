@@ -5,7 +5,7 @@
 // This compartmentalization will help reduce the chances of exposing anything
 // accidentally
 use rusqlite::{params, Connection, Result};
-use russh_keys::{key::KeyPair, PublicKeyBase64};
+use russh_keys::{key::KeyPair, pkcs8, PublicKeyBase64};
 use std::fmt::Display;
 
 /// Row representation
@@ -31,7 +31,7 @@ pub struct ProcessedKey {
 // We may encrypt this data in the future
 impl RawKey {
     pub fn process(&self) -> ProcessedKey {
-        let keypair = russh_keys::pkcs8::decode_pkcs8(&self.encoded_key, None).unwrap();
+        let keypair = pkcs8::decode_pkcs8(&self.encoded_key, None).unwrap();
         let pubkey = keypair.clone_public_key().unwrap().public_key_base64();
         let cipher = keypair.name().to_string();
         ProcessedKey {
