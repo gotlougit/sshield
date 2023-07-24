@@ -40,15 +40,20 @@ impl Socket {
     pub async fn serve(&self) {
         let locallistener = UnixListener::bind(SOCKNAME).unwrap();
         let wrapper = tokio_stream::wrappers::UnixListenerStream::new(locallistener);
+        server::serve(wrapper, SecureAgent {}).await.unwrap();
+    }
+
+    pub async fn add_all_keys(&self) {
         // Add keys to server automatically
         // This is done by creating a dummy client that adds all the keys we have
-        let stream = tokio::net::UnixStream::connect(SOCKNAME).await.unwrap();
         let keys = self.show_all_keys();
+        let stream = tokio::net::UnixStream::connect(SOCKNAME).await.unwrap();
         let mut dummyclient = client::AgentClient::connect(stream);
         for key in keys.iter() {
-            dummyclient.add_identity(&key.keypair, &[]).await.unwrap();
+            println!("adding key {}", key.nickname);
+            let pair = key.keypair.clone();
+            dummyclient.add_identity(&pair, &[]).await.unwrap();
         }
-        server::serve(wrapper, SecureAgent {}).await.unwrap();
     }
 
     // TODO: make this cryptographically secure
