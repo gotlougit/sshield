@@ -45,6 +45,8 @@ pub enum Command {
         #[arg(long, required = false)]
         port: Option<u16>,
     },
+    /// Start listener process and handle remote requests for keys
+    Serve {},
 }
 
 /// Rust reimplementation of SSH client with sandboxing
