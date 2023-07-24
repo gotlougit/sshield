@@ -118,6 +118,28 @@ pub(crate) fn get_key(db: &Connection, nick: &str) -> Result<ProcessedKey> {
     })
 }
 
+pub(crate) fn update_key(
+    db: &Connection,
+    nick: &str,
+    user: &Option<String>,
+    host: &Option<String>,
+    port: &Option<u16>,
+    maybegenkey: &Option<bool>,
+) {
+    // TODO: allow regeneration of key
+    let mut statement = db
+        .prepare(
+            "UPDATE keys SET 
+        user = COALESCE(?1, user), 
+        host = COALESCE(?2, host), 
+        port = COALESCE(?3, port)
+        WHERE nickname = ?4
+        ",
+        )
+        .unwrap();
+    statement.execute(params![user, host, port, nick]).unwrap();
+}
+
 /// Delete the required key from the database
 pub(crate) fn del_key(db: &Connection, nick: &str) -> Result<usize, rusqlite::Error> {
     let mut prepstatement = db.prepare(
