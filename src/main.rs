@@ -41,7 +41,7 @@ async fn main() {
                 },
                 Command::Serve {} => {
                     println!("Starting server process...");
-                    mgr.serve().await;
+                    socket::start_server().await;
                 }
                 Command::AddKeysToServer {} => {
                     mgr.add_all_keys().await;

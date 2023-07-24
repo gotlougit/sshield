@@ -18,6 +18,18 @@ impl server::Agent for SecureAgent {
     }
 }
 
+pub async fn start_server() {
+    match UnixListener::bind(SOCKNAME) {
+        Ok(listener) => {
+            let wrapper = tokio_stream::wrappers::UnixListenerStream::new(listener);
+            server::serve(wrapper, SecureAgent {}).await.unwrap();
+        }
+        Err(e) => {
+            eprintln!("Error while starting agent server: {}", e);
+        }
+    }
+}
+
 pub struct Socket {
     conn: Connection,
     // FIXME: DO NOT AND I REPEAT DO NOT
@@ -35,18 +47,6 @@ impl Socket {
             conn,
             pass: pass.to_string(),
         })
-    }
-
-    pub async fn serve(&self) {
-        match UnixListener::bind(SOCKNAME) {
-            Ok(listener) => {
-                let wrapper = tokio_stream::wrappers::UnixListenerStream::new(listener);
-                server::serve(wrapper, SecureAgent {}).await.unwrap();
-            }
-            Err(e) => {
-                eprintln!("Error while starting agent server: {}", e);
-            }
-        }
     }
 
     pub async fn add_all_keys(&self) {
