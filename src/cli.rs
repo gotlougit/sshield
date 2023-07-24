@@ -47,6 +47,8 @@ pub enum Command {
     },
     /// Start listener process and handle remote requests for keys
     Serve {},
+    /// Add all keys into server
+    AddKeysToServer {},
 }
 
 /// Rust reimplementation of SSH client with sandboxing
