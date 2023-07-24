@@ -53,7 +53,10 @@ async fn main() {
                     port,
                     genkey,
                 } => {
-                    mgr.update_key(&name, &user, &host, &port, &genkey);
+                    match mgr.update_key(&name, &user, &host, &port, &genkey) {
+                        true => println!("Updated key successfully"),
+                        false => eprintln!("Couldn't update key, does it exist?"),
+                    };
                 }
                 _ => {
                     println!("hello");
