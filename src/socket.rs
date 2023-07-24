@@ -47,12 +47,16 @@ impl Socket {
         // Add keys to server automatically
         // This is done by creating a dummy client that adds all the keys we have
         let keys = self.show_all_keys();
-        let stream = tokio::net::UnixStream::connect(SOCKNAME).await.unwrap();
-        let mut dummyclient = client::AgentClient::connect(stream);
-        for key in keys.iter() {
-            println!("adding key {}", key.nickname);
-            let pair = key.keypair.clone();
-            dummyclient.add_identity(&pair, &[]).await.unwrap();
+        match tokio::net::UnixStream::connect(SOCKNAME).await {
+            Ok(stream) => {
+                let mut dummyclient = client::AgentClient::connect(stream);
+                for key in keys.iter() {
+                    println!("adding key {}", key.nickname);
+                    let pair = key.keypair.clone();
+                    dummyclient.add_identity(&pair, &[]).await.unwrap();
+                }
+            }
+            Err(_) => eprintln!("Couldn't connect to agent, is it running?"),
         }
     }
 
