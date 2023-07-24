@@ -5,7 +5,7 @@ use russh_keys::{agent::client, agent::server, key::KeyPair, pkcs8};
 use std::future::Future;
 use std::sync::Arc;
 use tokio::fs;
-use tokio::net::UnixListener;
+use tokio::net::{UnixListener, UnixStream};
 
 const SOCKNAME: &str = "/tmp/ssh-agent-2";
 
@@ -53,7 +53,7 @@ impl Socket {
         // Add keys to server automatically
         // This is done by creating a dummy client that adds all the keys we have
         let keys = self.show_all_keys();
-        match tokio::net::UnixStream::connect(SOCKNAME).await {
+        match UnixStream::connect(SOCKNAME).await {
             Ok(stream) => {
                 let mut dummyclient = client::AgentClient::connect(stream);
                 for key in keys.iter() {
