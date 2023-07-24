@@ -1,7 +1,7 @@
 use crate::db::{self, ProcessedKey};
 use anyhow::Result;
 use rusqlite::Connection;
-use russh_keys::{agent::server, key::KeyPair, pkcs8};
+use russh_keys::{agent::client, agent::server, key::KeyPair, pkcs8};
 use std::future::Future;
 use std::sync::Arc;
 use tokio::fs;
@@ -40,6 +40,14 @@ impl Socket {
     pub async fn serve(&self) {
         let locallistener = UnixListener::bind(SOCKNAME).unwrap();
         let wrapper = tokio_stream::wrappers::UnixListenerStream::new(locallistener);
+        // Add keys to server automatically
+        // This is done by creating a dummy client that adds all the keys we have
+        let stream = tokio::net::UnixStream::connect(SOCKNAME).await.unwrap();
+        let keys = self.show_all_keys();
+        let mut dummyclient = client::AgentClient::connect(stream);
+        for key in keys.iter() {
+            dummyclient.add_identity(&key.keypair, &[]).await.unwrap();
+        }
         server::serve(wrapper, SecureAgent {}).await.unwrap();
     }
 
