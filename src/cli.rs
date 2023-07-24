@@ -44,6 +44,9 @@ pub enum Command {
         /// Port (optional)
         #[arg(long, required = false)]
         port: Option<u16>,
+        /// Generate new key (if needed)
+        #[arg(long, required = false)]
+        genkey: Option<bool>,
     },
     /// Start listener process and handle remote requests for keys
     Serve {},
