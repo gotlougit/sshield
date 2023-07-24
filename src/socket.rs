@@ -90,6 +90,20 @@ impl Socket {
         }
     }
 
+    pub fn update_key(
+        &self,
+        nick: &str,
+        user: &Option<String>,
+        host: &Option<String>,
+        port: &Option<u16>,
+        genkey: &Option<bool>,
+    ) {
+        match crate::db::update_key(&self.conn, nick, user, host, port, genkey) {
+            true => println!("Updated key successfully"),
+            false => eprintln!("Couldn't update key, does it exist?"),
+        }
+    }
+
     pub fn delete_key(&self, nick: &str) -> bool {
         match crate::db::del_key(&self.conn, nick) {
             Ok(rows) => rows != 0,
