@@ -3,6 +3,9 @@
 An experimental, opinionated drop-in `ssh-agent` replacement written in Rust using [`russh`](https://github.com/warp-tech/russh)
 with the aim of being safer and more secure due to sandboxing sensitive data.
 
+Right now, we are able to use it as an SSH agent, albeit with a lot of manual setup, 
+which will be automated
+
 Aims:
 
 - Secure all key data
