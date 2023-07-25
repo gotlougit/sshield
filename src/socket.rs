@@ -1,7 +1,8 @@
 use crate::db::{self, ProcessedKey};
 use anyhow::Result;
+use async_trait::async_trait;
 use rusqlite::Connection;
-use russh_keys::{agent::client, agent::server, key::KeyPair, pkcs8};
+use russh_keys::{agent::client, agent::server, agent::server::MessageType, key::KeyPair, pkcs8};
 use std::future::Future;
 use std::sync::Arc;
 use tokio::fs;
@@ -12,9 +13,13 @@ const SOCKNAME: &str = "/tmp/ssh-agent-2";
 #[derive(Clone)]
 struct SecureAgent {}
 
+#[async_trait]
 impl server::Agent for SecureAgent {
     fn confirm(self, _pk: Arc<KeyPair>) -> Box<dyn Future<Output = (Self, bool)> + Unpin + Send> {
         Box::new(futures::future::ready((self, true)))
+    }
+    async fn confirm_request(&self, msg: MessageType) -> bool {
+        true
     }
 }
 
