@@ -1109,9 +1109,8 @@ dependencies = [
 
 [[package]]
 name = "russh"
-version = "0.37.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7894d12dc117ca07eb565bcf75aac708b6ed5e2fd6a47e54a2ce42b64b5eea0"
+version = "0.38.0-beta.1"
+source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1146,8 +1145,7 @@ dependencies = [
 [[package]]
 name = "russh-cryptovec"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3fdf036c2216b554053d19d4af45c1722d13b00ac494ea19825daf4beac034e"
+source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
 dependencies = [
  "libc",
  "winapi",
@@ -1156,10 +1154,10 @@ dependencies = [
 [[package]]
 name = "russh-keys"
 version = "0.37.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2efecb132e085e1e7a3afdae40e19eec0dfd4d6159eb189de02f243c369e18b7"
+source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
 dependencies = [
  "aes",
+ "async-trait",
  "bcrypt-pbkdf",
  "bit-vec",
  "block-padding",
@@ -1314,6 +1312,7 @@ name = "sshield"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "clap",
  "futures",
  "rusqlite",
