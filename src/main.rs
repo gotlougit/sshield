@@ -4,6 +4,7 @@ use cli::{Args, Command};
 
 mod cli;
 mod db;
+mod gui;
 mod socket;
 
 #[tokio::main]

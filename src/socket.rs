@@ -1,4 +1,5 @@
 use crate::db::{self, ProcessedKey};
+use crate::gui;
 use anyhow::Result;
 use async_trait::async_trait;
 use rusqlite::Connection;
