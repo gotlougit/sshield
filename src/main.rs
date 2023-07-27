@@ -72,6 +72,12 @@ async fn main() {
                         false => eprintln!("Couldn't update key, does it exist?"),
                     };
                 }
+                Command::ImportKey { name, path, pass } => {
+                    match mgr.import_key_from_file(pass, &name, &path).await {
+                        true => println!("Key imported successfully"),
+                        false => eprintln!("Couldn't import key, check path or config?"),
+                    }
+                }
             };
         }
         None => {}
