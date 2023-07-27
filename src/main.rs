@@ -11,6 +11,7 @@ mod socket;
 
 #[tokio::main]
 async fn main() {
+    // TODO: add password prompt when opening DB!
     let mgr = Client::init("").unwrap();
     let args = Args::parse();
     match args.command {
