@@ -6,10 +6,12 @@ use rusqlite::Connection;
 use russh_keys::{
     agent::client, agent::server, agent::server::MessageType, key::KeyPair, openssh, pkcs8,
 };
-use std::future::Future;
+use ssh2_config::{ParseRule, SshConfig};
+use std::path::Path;
 use std::sync::Arc;
 use tokio::fs::{self, File};
 use tokio::io::AsyncReadExt;
+use tokio::macros::support::Future;
 use tokio::net::{UnixListener, UnixStream};
 
 const SOCKNAME: &str = "/tmp/ssh-agent-2";
@@ -70,14 +72,31 @@ impl Client {
         })
     }
 
-    pub async fn import_key_from_file(&self, path: &str, pass: Option<&str>, nick: &str) {
-        let mut keyfile = File::open(path).await.unwrap();
+    pub async fn import_key_from_file(
+        &self,
+        pass: Option<&str>,
+        nick: &str,
+        keypath: &str,
+    ) -> bool {
+        let mut configfile = File::open(Path::new("~/.ssh/config")).await.unwrap();
+        let mut reader: Vec<u8> = Vec::new();
+        configfile.read_to_end(&mut reader).await.unwrap();
+        let config = SshConfig::default()
+            .parse(&mut reader.as_slice(), ParseRule::STRICT)
+            .unwrap();
+        let params = config.query(nick);
+        let host = params.host_name.unwrap();
+        let user = params.user.unwrap();
+        let port = params.port.unwrap_or(22);
+        let mut keyfile = File::open(keypath).await.unwrap();
         // TODO: CryptoVec this?
         // Although this is a short-lived operation but we should still clear out
         // data
         let mut secret: Vec<u8> = Vec::new();
-        keyfile.read_to_end(&mut secret);
-        let keypair = openssh::decode_openssh(&secret, pass).unwrap();
+        keyfile.read_to_end(&mut secret).await.unwrap();
+        let key = openssh::decode_openssh(&secret, pass).unwrap();
+        let encoded_key = pkcs8::encode_pkcs8(&key);
+        crate::db::insert_key(&self.conn, nick, &user, &host, port, encoded_key)
     }
 
     pub async fn add_all_keys(&self) {
