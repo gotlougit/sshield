@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use crate::socket::Socket;
 use clap::Parser;
 use cli::{Args, Command};
@@ -41,6 +43,12 @@ async fn main() {
                     false => println!("Key could not be deleted, maybe it does not exist?"),
                 },
                 Command::Serve {} => {
+                    tokio::spawn(async move {
+                        tokio::signal::ctrl_c().await.unwrap();
+                        println!("Closing socket...");
+                        socket::close_socket().await;
+                        exit(0);
+                    });
                     println!("Starting server process...");
                     let task1 = socket::start_server();
                     let task2 = {

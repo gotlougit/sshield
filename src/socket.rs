@@ -44,6 +44,10 @@ pub async fn start_server() {
     }
 }
 
+pub async fn close_socket() {
+    fs::remove_file(SOCKNAME).await.unwrap();
+}
+
 pub struct Socket {
     conn: Connection,
     // FIXME: DO NOT AND I REPEAT DO NOT
@@ -127,9 +131,5 @@ impl Socket {
 
     pub fn show_all_keys(&self) -> Vec<ProcessedKey> {
         crate::db::get_all_keys(&self.conn).unwrap()
-    }
-
-    pub async fn close(&self) {
-        fs::remove_file(SOCKNAME).await.unwrap();
     }
 }
