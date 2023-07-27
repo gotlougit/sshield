@@ -3,11 +3,9 @@ use crate::gui;
 use anyhow::Result;
 use async_trait::async_trait;
 use rusqlite::Connection;
-use russh_keys::{
-    agent::client, agent::server, agent::server::MessageType, key::KeyPair, openssh, pkcs8,
-};
+use russh_keys::load_secret_key;
+use russh_keys::{agent::client, agent::server, agent::server::MessageType, key::KeyPair, pkcs8};
 use ssh2_config::{ParseRule, SshConfig};
-use std::path::Path;
 use std::sync::Arc;
 use tokio::fs::{self, File};
 use tokio::io::AsyncReadExt;
@@ -74,11 +72,13 @@ impl Client {
 
     pub async fn import_key_from_file(
         &self,
-        pass: Option<&str>,
+        pass: Option<String>,
         nick: &str,
         keypath: &str,
     ) -> bool {
-        let mut configfile = File::open(Path::new("~/.ssh/config")).await.unwrap();
+        let mut confpath = dirs::home_dir().unwrap();
+        confpath.push(".ssh/config");
+        let mut configfile = File::open(confpath).await.unwrap();
         let mut reader: Vec<u8> = Vec::new();
         configfile.read_to_end(&mut reader).await.unwrap();
         let config = SshConfig::default()
@@ -88,13 +88,7 @@ impl Client {
         let host = params.host_name.unwrap();
         let user = params.user.unwrap();
         let port = params.port.unwrap_or(22);
-        let mut keyfile = File::open(keypath).await.unwrap();
-        // TODO: CryptoVec this?
-        // Although this is a short-lived operation but we should still clear out
-        // data
-        let mut secret: Vec<u8> = Vec::new();
-        keyfile.read_to_end(&mut secret).await.unwrap();
-        let key = openssh::decode_openssh(&secret, pass).unwrap();
+        let key = load_secret_key(keypath, pass.as_deref()).unwrap();
         let encoded_key = pkcs8::encode_pkcs8(&key);
         crate::db::insert_key(&self.conn, nick, &user, &host, port, encoded_key)
     }
