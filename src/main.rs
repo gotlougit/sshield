@@ -54,7 +54,6 @@ async fn main() {
                     let task2 = {
                         // In order to prevent any funny business with the scheduler,
                         // let's wait for a while and let the other task take over
-                        println!("Adding keys after 1 second...");
                         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
                         mgr.add_all_keys()
                     };
