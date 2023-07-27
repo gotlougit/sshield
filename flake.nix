@@ -12,18 +12,9 @@
         devShell = mkShell rec {
           buildInputs = [
             pkgconfig
-            libxkbcommon
-            libGL
-
-            # WINIT_UNIX_BACKEND=wayland
-            wayland
-
-            # WINIT_UNIX_BACKEND=x11
-            xorg.libXcursor
-            xorg.libXrandr
-            xorg.libXi
-            xorg.libX11
             openssl.dev
+            gnome.zenity
+            libsForQt5.kdialog
             cargo
             rustc
             rustfmt
