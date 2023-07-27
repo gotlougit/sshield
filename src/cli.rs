@@ -50,6 +50,15 @@ pub enum Command {
     },
     /// Start listener process and handle remote requests for keys
     Serve {},
+    /// Import an OpenSSH key
+    ImportKey {
+        #[arg(required = true)]
+        name: String,
+        #[arg(required = true)]
+        path: String,
+        #[arg(required = false)]
+        pass: Option<String>,
+    },
 }
 
 /// Rust reimplementation of SSH client with sandboxing
