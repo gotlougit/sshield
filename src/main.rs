@@ -1,6 +1,6 @@
 use std::process::exit;
 
-use crate::socket::Socket;
+use crate::socket::Client;
 use clap::Parser;
 use cli::{Args, Command};
 
@@ -11,7 +11,7 @@ mod socket;
 
 #[tokio::main]
 async fn main() {
-    let mgr = Socket::init("").unwrap();
+    let mgr = Client::init("").unwrap();
     let args = Args::parse();
     match args.command {
         Some(cmd) => {
@@ -70,9 +70,6 @@ async fn main() {
                         true => println!("Updated key successfully"),
                         false => eprintln!("Couldn't update key, does it exist?"),
                     };
-                }
-                _ => {
-                    println!("hello");
                 }
             };
         }
