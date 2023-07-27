@@ -9,10 +9,10 @@ edition = "2021"
 anyhow = "1.0.72"
 async-trait = "0.1.72"
 clap = { version = "4.3.17", features = [ "derive" ] }
+dialog = "0.3.0"
 futures = "0.3.28"
 rusqlite = { version = "0.29.0", features = ["bundled"] }
 russh = { git = "https://github.com/gotlougit/russh" , features = ["openssl"] }
 russh-keys = { git = "https://github.com/gotlougit/russh" , features = ["openssl"] }
 tokio = { version = "1.29.1", features = ["full"] }
 tokio-stream = "0.1.14"
-eframe = { version = "0.22.0", default-features = false, features = ["accesskit", "default_fonts", "glow" ] }
