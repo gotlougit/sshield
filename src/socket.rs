@@ -3,10 +3,13 @@ use crate::gui;
 use anyhow::Result;
 use async_trait::async_trait;
 use rusqlite::Connection;
-use russh_keys::{agent::client, agent::server, agent::server::MessageType, key::KeyPair, pkcs8};
+use russh_keys::{
+    agent::client, agent::server, agent::server::MessageType, key::KeyPair, openssh, pkcs8,
+};
 use std::future::Future;
 use std::sync::Arc;
-use tokio::fs;
+use tokio::fs::{self, File};
+use tokio::io::AsyncReadExt;
 use tokio::net::{UnixListener, UnixStream};
 
 const SOCKNAME: &str = "/tmp/ssh-agent-2";
@@ -65,6 +68,16 @@ impl Client {
             conn,
             pass: pass.to_string(),
         })
+    }
+
+    pub async fn import_key_from_file(&self, path: &str, pass: Option<&str>, nick: &str) {
+        let mut keyfile = File::open(path).await.unwrap();
+        // TODO: CryptoVec this?
+        // Although this is a short-lived operation but we should still clear out
+        // data
+        let mut secret: Vec<u8> = Vec::new();
+        keyfile.read_to_end(&mut secret);
+        let keypair = openssh::decode_openssh(&secret, pass).unwrap();
     }
 
     pub async fn add_all_keys(&self) {
