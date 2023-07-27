@@ -20,7 +20,15 @@ impl server::Agent for SecureAgent {
         Box::new(futures::future::ready((self, true)))
     }
     async fn confirm_request(&self, msg: MessageType) -> bool {
-        true
+        // Only prompt on requesting signing since that is most important
+        let msgstr = match msg {
+            MessageType::Sign => "Allow request to sign data?",
+            _ => "",
+        };
+        if msgstr.is_empty() {
+            return true;
+        }
+        gui::confirm_request(msgstr)
     }
 }
 
