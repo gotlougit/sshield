@@ -1401,6 +1401,7 @@ dependencies = [
  "async-trait",
  "clap",
  "dialog",
+ "dirs 5.0.1",
  "futures",
  "rusqlite",
  "russh",
