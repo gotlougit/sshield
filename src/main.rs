@@ -43,10 +43,7 @@ async fn main() {
                 Command::Serve {} => {
                     println!("Starting server process...");
                     let task1 = socket::start_server();
-                    let task2 = {
-                        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                        mgr.add_all_keys()
-                    };
+                    let task2 = mgr.add_all_keys();
                     tokio::join!(task1, task2);
                 }
                 Command::UpdateKey {
