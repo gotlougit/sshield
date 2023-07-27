@@ -48,7 +48,7 @@ pub async fn close_socket() {
     fs::remove_file(SOCKNAME).await.unwrap();
 }
 
-pub struct Socket {
+pub struct Client {
     conn: Connection,
     // FIXME: DO NOT AND I REPEAT DO NOT
     // HAVE THIS BE PLAINTEXT, EVEN IN MEMORY!
@@ -56,7 +56,7 @@ pub struct Socket {
     pass: String,
 }
 
-impl Socket {
+impl Client {
     pub fn init(pass: &str) -> Result<Self> {
         let conn = db::open_db()?;
         // Here we would ideally place some decryption mechanisms to handle
