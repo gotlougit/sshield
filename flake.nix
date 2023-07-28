@@ -5,7 +5,7 @@
       pkgs = import nixpkgs { inherit system; };
       mkShell = pkgs.mkShell.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv; };
     in {
-       defaultPackage.${system} = mkShell {
+       devShells.${system}.default = mkShell {
         name = "rustdev";
         buildInputs = [
           pkgs.pkgconfig
