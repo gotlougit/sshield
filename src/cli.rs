@@ -52,10 +52,13 @@ pub enum Command {
     Serve {},
     /// Import an OpenSSH key
     ImportKey {
+        /// Key name as defined in SSH config; this will be key name here as well
         #[arg(required = true)]
         name: String,
+        /// Path to the SSH private key
         #[arg(required = true)]
         path: String,
+        /// Passcode to unlock the key if need be
         #[arg(required = false)]
         pass: Option<String>,
     },
