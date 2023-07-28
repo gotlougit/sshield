@@ -11,11 +11,11 @@ mod socket;
 
 #[tokio::main]
 async fn main() {
-    let pass = crate::gui::get_db_pass();
-    let mgr = Client::init(pass.as_str()).unwrap();
     let args = Args::parse();
     match args.command {
         Some(cmd) => {
+            let pass = crate::gui::get_db_pass();
+            let mgr = Client::init(pass.as_str()).unwrap();
             match cmd {
                 Command::GenKey {
                     name,
