@@ -1195,7 +1195,7 @@ dependencies = [
 [[package]]
 name = "russh"
 version = "0.38.0-beta.1"
-source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
+source = "git+https://github.com/warp-tech/russh#b3576aaadd00259d7f0038020e29ae9baaedf0fe"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1230,7 +1230,7 @@ dependencies = [
 [[package]]
 name = "russh-cryptovec"
 version = "0.7.0"
-source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
+source = "git+https://github.com/warp-tech/russh#b3576aaadd00259d7f0038020e29ae9baaedf0fe"
 dependencies = [
  "libc",
  "winapi 0.3.9",
@@ -1239,7 +1239,7 @@ dependencies = [
 [[package]]
 name = "russh-keys"
 version = "0.37.1"
-source = "git+https://github.com/gotlougit/russh#c399f041e4e4a8769a6913cbcb8f4d18a80ccc3a"
+source = "git+https://github.com/warp-tech/russh#b3576aaadd00259d7f0038020e29ae9baaedf0fe"
 dependencies = [
  "aes",
  "async-trait",
