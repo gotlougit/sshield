@@ -1,26 +1,22 @@
 {
-  inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-  };
-
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-        mkShell = pkgs.mkShell.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv; };
-      in with pkgs; rec {
-        devShell = mkShell rec {
-          buildInputs = [
-            pkgconfig
-            openssl.dev
-            gnome.zenity
-            libsForQt5.kdialog
-            cargo
-            rustc
-            rustfmt
-            rust-analyzer
-          ];
-          LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
-        };
-      });
+  outputs = { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+      mkShell = pkgs.mkShell.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv; };
+    in {
+       defaultPackage.${system} = mkShell {
+        name = "rustdev";
+        buildInputs = [
+          pkgs.pkgconfig
+          pkgs.openssl.dev
+          pkgs.cargo
+          pkgs.rustc
+          pkgs.rustfmt
+          pkgs.rust-analyzer
+          pkgs.gnome.zenity
+          pkgs.libsForQt5.kdialog
+        ];
+      };
+    };
 }
