@@ -32,3 +32,12 @@ Nice-to-haves:
 - Store key data in different formats
 
 - Configure database and socket location
+
+## Usage
+
+Clone this repo. Then, assuming you have `direnv` and `nix` (with flakes enabled),
+simply allow this repo's `.envrc` using `direnv allow .` after entering this repo.
+
+The flake will automatically download the dependencies of this project, including
+its own Rust toolchain, `kdialog` and `zenity` (for creating dialog boxes) and 
+`openssl.dev` to build against OpenSSL.
