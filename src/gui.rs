@@ -10,3 +10,11 @@ pub fn confirm_request(msg: &str) -> bool {
         _ => false,
     }
 }
+
+pub fn get_db_pass() -> String {
+    dialog::Password::new("Enter database password: ")
+        .title("Password")
+        .show()
+        .unwrap()
+        .unwrap_or(String::new())
+}
