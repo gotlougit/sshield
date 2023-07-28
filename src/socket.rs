@@ -12,7 +12,7 @@ use tokio::io::AsyncReadExt;
 use tokio::macros::support::Future;
 use tokio::net::{UnixListener, UnixStream};
 
-const SOCKNAME: &str = "/tmp/ssh-agent-2";
+const SOCKNAME: &str = "/run/user/1000/ssh-agent";
 
 #[derive(Clone)]
 struct SecureAgent {}
