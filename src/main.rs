@@ -11,8 +11,8 @@ mod socket;
 
 #[tokio::main]
 async fn main() {
-    // TODO: add password prompt when opening DB!
-    let mgr = Client::init("").unwrap();
+    let pass = crate::gui::get_db_pass();
+    let mgr = Client::init(pass.as_str()).unwrap();
     let args = Args::parse();
     match args.command {
         Some(cmd) => {

@@ -58,10 +58,12 @@ impl Display for ProcessedKey {
     }
 }
 
-/// Opens the database and creates the table if necessary
-pub(crate) fn open_db() -> Result<Connection> {
+/// Opens the database and creates the table if necessary.
+/// Also encrypts the database as well.
+pub(crate) fn open_db(pass: &str) -> Result<Connection> {
     match Connection::open("./keys.db3") {
         Ok(conn) => {
+            conn.pragma_update(None, "key", pass).unwrap();
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS keys (
                     nickname VARCHAR PRIMARY KEY,

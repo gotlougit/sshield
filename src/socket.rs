@@ -61,7 +61,7 @@ pub struct Client {
 
 impl Client {
     pub fn init(pass: &str) -> Result<Self> {
-        let conn = db::open_db()?;
+        let conn = db::open_db(pass)?;
         // Here we would ideally place some decryption mechanisms to handle
         // sensitive key data
         Ok(Self {
