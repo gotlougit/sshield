@@ -23,7 +23,7 @@ async fn main() {
                     host,
                     port,
                 } => {
-                    match mgr.gen_key(&name, &user, &host, port) {
+                    match mgr.gen_key(&name, &user, &host, port).await {
                         true => println!("{}", mgr.show_key(&name).unwrap()),
                         false => println!("Error, key wasn't able to be created"),
                     };

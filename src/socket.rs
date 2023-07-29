@@ -93,20 +93,24 @@ impl Client {
         crate::db::insert_key(&self.conn, nick, &user, &host, port, encoded_key)
     }
 
+    pub async fn add_key_to_running_agent(&self, key: &ProcessedKey) {
+        match UnixStream::connect(SOCKNAME).await {
+            Ok(stream) => {
+                let mut dummyclient = client::AgentClient::connect(stream);
+                println!("adding key {}", key.nickname);
+                let pair = key.keypair.clone();
+                dummyclient.add_identity(&pair, &[]).await.unwrap();
+            }
+            Err(_) => eprintln!("Couldn't connect to agent, is it running?"),
+        }
+    }
+
     pub async fn add_all_keys(&self) {
         // Add keys to server automatically
         // This is done by creating a dummy client that adds all the keys we have
         let keys = self.show_all_keys();
-        match UnixStream::connect(SOCKNAME).await {
-            Ok(stream) => {
-                let mut dummyclient = client::AgentClient::connect(stream);
-                for key in keys.iter() {
-                    println!("adding key {}", key.nickname);
-                    let pair = key.keypair.clone();
-                    dummyclient.add_identity(&pair, &[]).await.unwrap();
-                }
-            }
-            Err(_) => eprintln!("Couldn't connect to agent, is it running?"),
+        for key in keys.iter() {
+            self.add_key_to_running_agent(&key).await;
         }
     }
 
@@ -115,11 +119,18 @@ impl Client {
         proposed_pass == self.pass
     }
 
-    pub fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) -> bool {
+    pub async fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) -> bool {
         let key = KeyPair::generate_ed25519().unwrap();
         // store this encoded key in db
         let encoded_key = pkcs8::encode_pkcs8(&key);
-        crate::db::insert_key(&self.conn, nick, user, host, port, encoded_key)
+        let res = crate::db::insert_key(&self.conn, nick, user, host, port, encoded_key);
+        if !res {
+            return false;
+        }
+        let processedkey = self.show_key(nick).unwrap();
+        // insert key into running agent, if any
+        self.add_key_to_running_agent(&processedkey).await;
+        true
     }
 
     pub fn show_key(&self, nick: &str) -> Result<ProcessedKey> {
