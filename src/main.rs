@@ -17,6 +17,13 @@ async fn main() {
             let pass = crate::gui::get_db_pass();
             let mgr = Client::init(pass.as_str()).unwrap();
             match cmd {
+                Command::ChangePassword {} => {
+                    let newpass = crate::gui::get_new_db_pass();
+                    match crate::db::change_db_pass(&pass, &newpass) {
+                        Ok(_) => println!("Password of database changed successfully!"),
+                        Err(_) => eprintln!("Password was unable to be changed!"),
+                    };
+                }
                 Command::GenKey {
                     name,
                     user,

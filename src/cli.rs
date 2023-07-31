@@ -62,6 +62,8 @@ pub enum Command {
         #[arg(required = false)]
         pass: Option<String>,
     },
+    /// Change the database password
+    ChangePassword {},
 }
 
 /// Rust reimplementation of SSH client with sandboxing

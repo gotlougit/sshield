@@ -18,3 +18,11 @@ pub fn get_db_pass() -> String {
         .unwrap()
         .unwrap_or(String::new())
 }
+
+pub fn get_new_db_pass() -> String {
+    dialog::Password::new("Enter new database password: ")
+        .title("sshield- Change password")
+        .show()
+        .unwrap()
+        .unwrap_or(String::new())
+}
