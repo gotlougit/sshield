@@ -18,6 +18,7 @@ async fn main() {
             let mgr = Client::init(pass.as_str()).unwrap();
             match cmd {
                 Command::ChangePassword {} => {
+                    std::mem::drop(mgr);
                     let newpass = crate::gui::get_new_db_pass();
                     match crate::db::change_db_pass(&pass, &newpass) {
                         Ok(_) => println!("Password of database changed successfully!"),
