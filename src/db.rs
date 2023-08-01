@@ -72,8 +72,8 @@ pub(crate) fn change_db_pass(oldpass: &str, newpass: &str) -> Result<Connection>
 
 /// Opens the database and creates the table if necessary.
 /// Also encrypts the database as well.
-pub(crate) fn open_db(pass: &str) -> Result<Connection> {
-    match Connection::open("./keys.db3") {
+pub(crate) fn open_db(pass: &str, db_path: &str) -> Result<Connection> {
+    match Connection::open(db_path) {
         Ok(conn) => {
             conn.pragma_update(None, "key", pass).unwrap();
             conn.execute(

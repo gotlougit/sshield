@@ -5,17 +5,19 @@ use clap::Parser;
 use cli::{Args, Command};
 
 mod cli;
+mod config;
 mod db;
 mod gui;
 mod socket;
 
 #[tokio::main]
 async fn main() {
+    let db_path = crate::config::get_db_path();
     let args = Args::parse();
     match args.command {
         Some(cmd) => {
             let pass = crate::gui::get_db_pass();
-            match Client::init(pass.as_str()) {
+            match Client::init(pass.as_str(), &db_path) {
                 Ok(mgr) => {
                     match cmd {
                         Command::ChangePassword {} => {
