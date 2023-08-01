@@ -18,3 +18,4 @@ russh-keys = { git = "https://github.com/warp-tech/russh" , features = ["openssl
 ssh2-config = "0.2.0"
 tokio = { version = "1.29.1", features = ["full"] }
 tokio-stream = "0.1.14"
+toml = "0.7.6"
