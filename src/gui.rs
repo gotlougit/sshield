@@ -5,10 +5,7 @@ pub fn confirm_request(msg: &str) -> bool {
         .title("sshield - Confirm request")
         .show()
         .unwrap_or(Choice::No);
-    match choice {
-        Choice::Yes => true,
-        _ => false,
-    }
+    matches!(choice, Choice::Yes)
 }
 
 pub fn get_db_pass() -> String {

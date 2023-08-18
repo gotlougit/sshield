@@ -103,7 +103,7 @@ impl Client {
         // This is done by creating a dummy client that adds all the keys we have
         let keys = self.show_all_keys();
         for key in keys.iter() {
-            self.add_key_to_running_agent(&key).await;
+            self.add_key_to_running_agent(key).await;
         }
     }
 
@@ -123,12 +123,10 @@ impl Client {
 
     pub fn show_key(&self, nick: &str) -> Result<ProcessedKey> {
         match crate::db::get_key(&self.conn, nick) {
-            Ok(res) => {
-                return Ok(res);
-            }
+            Ok(res) => Ok(res),
             Err(e) => {
                 println!("That key doesn't exist, try creating it?");
-                return Err(e.into());
+                Err(e.into())
             }
         }
     }

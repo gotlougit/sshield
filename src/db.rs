@@ -107,10 +107,9 @@ pub(crate) fn insert_key(
         ) VALUES (?1, ?2, ?3, ?4, (?5))",
         )
         .unwrap();
-    match prepstatement.execute(params![nick, user, host, &port.to_string(), encoded_key]) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    prepstatement
+        .execute(params![nick, user, host, &port.to_string(), encoded_key])
+        .is_ok()
 }
 
 /// Get the required key from the database
