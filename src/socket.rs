@@ -53,10 +53,6 @@ pub async fn close_socket() {
 
 pub struct Client {
     conn: Connection,
-    // FIXME: DO NOT AND I REPEAT DO NOT
-    // HAVE THIS BE PLAINTEXT, EVEN IN MEMORY!
-    // PROTECT THESE BITS AT ALL COSTS!
-    pass: String,
 }
 
 impl Client {
@@ -64,10 +60,7 @@ impl Client {
         let conn = db::open_db(pass, db_path)?;
         // Here we would ideally place some decryption mechanisms to handle
         // sensitive key data
-        Ok(Self {
-            conn,
-            pass: pass.to_string(),
-        })
+        Ok(Self { conn })
     }
 
     pub async fn import_key_from_file(
@@ -112,11 +105,6 @@ impl Client {
         for key in keys.iter() {
             self.add_key_to_running_agent(&key).await;
         }
-    }
-
-    // TODO: make this cryptographically secure
-    fn auth_req(&self, proposed_pass: &str) -> bool {
-        proposed_pass == self.pass
     }
 
     pub async fn gen_key(&self, nick: &str, user: &str, host: &str, port: u16) -> bool {
