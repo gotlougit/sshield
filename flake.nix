@@ -17,5 +17,8 @@
           pkgs.libsForQt5.kdialog
         ];
       };
+      packages.${system} = {
+        default = pkgs.callPackage ./default.nix {};
+      };
     };
 }
