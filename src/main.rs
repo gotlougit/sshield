@@ -10,6 +10,43 @@ mod db;
 mod gui;
 mod socket;
 
+/// Allow only local file access, and no socket access
+fn restrict_net() {
+    extrasafe::SafetyContext::new()
+        .enable(extrasafe::builtins::Networking::nothing())
+        .unwrap()
+        .enable(
+            extrasafe::builtins::SystemIO::nothing()
+                .allow_close()
+                .allow_open()
+                .yes_really()
+                .allow_read()
+                .allow_write()
+                .allow_unlink()
+                .allow_ioctl()
+                .allow_metadata(),
+        )
+        .unwrap()
+        .apply_to_all_threads()
+        .unwrap();
+}
+
+/// Allow only socket access and restricted file access
+fn restrict_file() {
+    extrasafe::SafetyContext::new()
+        .enable(
+            extrasafe::builtins::Networking::nothing()
+                .allow_running_unix_servers()
+                .allow_start_unix_servers()
+                .yes_really(),
+        )
+        .unwrap()
+        .enable(extrasafe::builtins::SystemIO::nothing())
+        .unwrap()
+        .apply_to_current_thread()
+        .unwrap();
+}
+
 #[tokio::main]
 async fn main() {
     let db_path = crate::config::get_db_path();
