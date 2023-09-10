@@ -1,24 +1,35 @@
-{ lib, rustPlatform, fetchFromGitHub, pkgs, ... }:
-let
+{ lib, makeBinaryWrapper, rustPlatform, fetchFromGitHub, pkgs, cargo, pkg-config, openssl, libseccomp, sqlcipher, ... }:
+
+rustPlatform.buildRustPackage rec {
   pname = "sshield";
   version = "0.1.0";
+
   src = fetchFromGitHub {
     owner = "gotlougit";
     repo = pname;
-    rev = "98c411901d9423804d4ef43f6720ee47d458f323";
-    sha256 = "sha256-zCC3oslVtMARJn4eKTxQTT80OYY26QZJP01c+xHdOzs=";
+    rev = "9435c7f58e7e0ad5ce51e59289715d1f785bb375";
+    sha256 = "sha256-5Fswkd7M7ijUZD6QXhu1wOt+c7eoyFVP6ilxHYoG39c=";
   };
-  cargoDeps = rustPlatform.importCargoLock {
+
+  cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      
+      "extrasafe-0.2.0" = "sha256-jJIL/zD07eopvZO9h1X1XccTva4edurdANv//hPZwIw=";
+      "russh-0.38.0-beta.1" = "sha256-j6jQtRBEDQmYo4XmEmri1BfgJOASIASaUTi29KU/9k8=";
     };
   };
-in
-rustPlatform.buildRustPackage {
-  inherit cargoDeps;
-  propagatedBuildInputs = [ pkgs.libsForQt5.kdialog ];
-  cargoHash = "";
+  cargoSha256 = "";
+
+  nativeBuildInputs = [ makeBinaryWrapper cargo rustPlatform.cargoSetupHook pkg-config ];
+  buildInputs = [ openssl libseccomp sqlcipher ];
+  wrapperPath = lib.makeBinPath ([
+    pkgs.gnome.zenity
+  ]);
+  
+  checkPhase = false;
+  postFixup = ''
+    wrapProgram $out/bin/sshield --prefix PATH : "${wrapperPath}"
+  '';
 
   meta = with lib; {
     description = "A secure, drop-in, opinionated SSH agent replacement";
