@@ -14,8 +14,8 @@ dirs = "5.0.1"
 extrasafe = { git = "https://github.com/boustrophedon/extrasafe" }
 futures = "0.3.28"
 rusqlite = { version = "0.29.0", features = ["bundled-sqlcipher-vendored-openssl"] }
-russh = { git = "https://github.com/warp-tech/russh" , features = ["openssl"] }
-russh-keys = { git = "https://github.com/warp-tech/russh" , features = ["openssl"] }
+russh = { git = "https://github.com/warp-tech/russh" , features = ["vendored-openssl"] }
+russh-keys = { git = "https://github.com/warp-tech/russh" , features = ["vendored-openssl"] }
 ssh2-config = "0.2.0"
 tokio = { version = "1.29.1", features = ["full"] }
 tokio-stream = "0.1.14"
