@@ -14,6 +14,7 @@
           pkgs.rustfmt
           pkgs.rust-analyzer
           pkgs.libseccomp
+          pkgs.sqlcipher
           pkgs.gnome.zenity
           pkgs.libsForQt5.kdialog
         ];
