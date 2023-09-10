@@ -4,8 +4,9 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
       mkShell = pkgs.mkShell.override { stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv; };
-    in {
-       devShells.${system}.default = mkShell {
+    in
+    {
+      devShells.${system}.default = mkShell {
         name = "rustdev";
         buildInputs = [
           pkgs.pkgconfig
@@ -20,7 +21,7 @@
         ];
       };
       packages.${system} = {
-        default = pkgs.callPackage ./default.nix {};
+        default = pkgs.callPackage ./default.nix { };
       };
     };
 }
