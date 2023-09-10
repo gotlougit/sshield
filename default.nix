@@ -23,6 +23,7 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [ makeBinaryWrapper cargo rustPlatform.cargoSetupHook pkg-config ];
   buildInputs = [ openssl libseccomp sqlcipher ];
   wrapperPath = lib.makeBinPath ([
+    pkgs.libsForQt5.kdialog
     pkgs.gnome.zenity
   ]);
   
