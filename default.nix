@@ -7,7 +7,7 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "gotlougit";
     repo = pname;
-    rev = "9435c7f58e7e0ad5ce51e59289715d1f785bb375";
+    rev = "f72b14fada55d89716801199f3acc1be8944f0a6";
     sha256 = "sha256-5Fswkd7M7ijUZD6QXhu1wOt+c7eoyFVP6ilxHYoG39c=";
   };
 
