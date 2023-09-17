@@ -4,6 +4,12 @@ use std::io::Write;
 use std::path::Path;
 use toml::Table;
 
+#[derive(PartialEq, Clone)]
+pub enum Prompt {
+    NoPrompt,
+    EveryNSeconds(i64),
+}
+
 fn get_config_path() -> String {
     match env::var_os("XDG_CONFIG_HOME") {
         Some(path) => {
@@ -34,13 +40,26 @@ fn create_config_folder(config_path: &str) {
     }
 }
 
-pub fn get_db_path() -> String {
+pub fn get_all_vars() -> (String, Prompt) {
     let config_path = get_config_path();
     create_config_folder(&config_path);
     let file_path = config_path + "/sshield.toml";
     let rawconf = fs::read_to_string(file_path).unwrap();
     let conf: Table = rawconf.parse().unwrap();
-    let path = conf.get("database").unwrap().as_str().unwrap();
-    // TODO: Figure out a way to remove these quotation marks elegantly
-    path.replace('\"', "")
+    let db_path = conf
+        .get("database")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        // TODO: Figure out a way to remove these quotation marks elegantly
+        .replace('\"', "");
+    let prompt_timeout = conf.get("prompt").unwrap().as_integer().unwrap_or(0);
+    let auth_settings = {
+        if prompt_timeout <= 0 {
+            Prompt::NoPrompt
+        } else {
+            Prompt::EveryNSeconds(prompt_timeout)
+        }
+    };
+    (db_path, auth_settings)
 }

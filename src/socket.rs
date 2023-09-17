@@ -1,3 +1,4 @@
+use crate::config::Prompt;
 use crate::db::{self, ProcessedKey};
 use crate::gui;
 use anyhow::Result;
@@ -15,7 +16,9 @@ use tokio::net::{UnixListener, UnixStream};
 const SOCKNAME: &str = "/run/user/1000/ssh-agent";
 
 #[derive(Clone)]
-struct SecureAgent {}
+struct SecureAgent {
+    auth_timeout: Prompt,
+}
 
 #[async_trait]
 impl server::Agent for SecureAgent {
@@ -23,6 +26,9 @@ impl server::Agent for SecureAgent {
         Box::new(futures::future::ready((self, true)))
     }
     async fn confirm_request(&self, msg: MessageType) -> bool {
+        if self.auth_timeout == Prompt::NoPrompt {
+            return true;
+        }
         // Only prompt on requesting signing since that is most important
         let msgstr = match msg {
             MessageType::Sign => "Allow request to sign data?",
@@ -35,11 +41,13 @@ impl server::Agent for SecureAgent {
     }
 }
 
-pub async fn start_server() {
+pub async fn start_server(auth_timeout: Prompt) {
     match UnixListener::bind(SOCKNAME) {
         Ok(listener) => {
             let wrapper = tokio_stream::wrappers::UnixListenerStream::new(listener);
-            server::serve(wrapper, SecureAgent {}).await.unwrap();
+            server::serve(wrapper, SecureAgent { auth_timeout })
+                .await
+                .unwrap();
         }
         Err(e) => {
             eprintln!("Error while starting agent server: {}", e);
