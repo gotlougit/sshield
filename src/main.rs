@@ -36,14 +36,23 @@ fn restrict_file() {
     extrasafe::SafetyContext::new()
         .enable(
             extrasafe::builtins::Networking::nothing()
+                // This allows `connect()` syscalls
+                // TODO: Wait for https://github.com/boustrophedon/extrasafe/pull/25
+                // to be merged in order to use `allow_connect()`
+                .allow_start_tcp_clients()
+                .allow_running_unix_clients()
                 .allow_running_unix_servers()
                 .allow_start_unix_servers()
                 .yes_really(),
         )
         .unwrap()
-        .enable(extrasafe::builtins::SystemIO::nothing())
+        // TODO: actually restrict file access
+        .enable(extrasafe::builtins::SystemIO::everything())
         .unwrap()
-        .apply_to_current_thread()
+        // Allows tokio's Ctrl+C handler to work
+        .enable(extrasafe::builtins::danger_zone::Threads::nothing().allow_create())
+        .unwrap()
+        .apply_to_all_threads()
         .unwrap();
 }
 
