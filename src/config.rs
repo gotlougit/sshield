@@ -11,6 +11,11 @@ pub enum Prompt {
     EveryNSeconds(i64),
 }
 
+pub struct Config {
+    pub db_path: String,
+    pub prompt: Prompt,
+}
+
 pub fn get_pass() -> String {
     let user = std::env::var_os("USER").unwrap();
     let entry = Entry::new("sshield", user.to_str().unwrap()).unwrap();
@@ -60,7 +65,7 @@ fn create_config_folder(config_path: &str) {
     }
 }
 
-pub fn get_all_vars() -> (String, Prompt) {
+pub fn get_all_vars() -> Config {
     let config_path = get_config_path();
     create_config_folder(&config_path);
     let file_path = config_path + "/sshield.toml";
@@ -81,5 +86,8 @@ pub fn get_all_vars() -> (String, Prompt) {
             Prompt::EveryNSeconds(prompt_timeout)
         }
     };
-    (db_path, auth_settings)
+    Config {
+        db_path,
+        prompt: auth_settings,
+    }
 }

@@ -1,8 +1,8 @@
-use std::process::exit;
-
+use crate::config::Config;
 use crate::socket::Client;
 use clap::Parser;
 use cli::{Args, Command};
+use std::process::exit;
 
 mod cli;
 mod config;
@@ -58,7 +58,7 @@ fn restrict_file() {
 
 #[tokio::main]
 async fn main() {
-    let (db_path, auth_timeout) = crate::config::get_all_vars();
+    let Config { db_path, prompt } = crate::config::get_all_vars();
     let args = Args::parse();
     if let Some(cmd) = args.command {
         let pass = crate::config::get_pass();
@@ -107,7 +107,7 @@ async fn main() {
                             exit(0);
                         });
                         println!("Starting server process...");
-                        let task1 = socket::start_server(auth_timeout);
+                        let task1 = socket::start_server(prompt);
                         let task2 = {
                             // In order to prevent any funny business with the scheduler,
                             // let's wait for a while and let the other task take over
