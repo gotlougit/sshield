@@ -62,10 +62,10 @@ async fn main() {
         db_path,
         prompt,
         trust_keyring,
-    } = crate::config::get_all_vars();
+    } = crate::config::get_all_vars().unwrap();
     let args = Args::parse();
     if let Some(cmd) = args.command {
-        let pass = crate::config::get_pass(trust_keyring);
+        let pass = crate::config::get_pass(trust_keyring).unwrap();
         match Client::init(pass.as_str(), &db_path) {
             Ok(mgr) => {
                 match cmd {
@@ -141,7 +141,7 @@ async fn main() {
                 };
             }
             Err(_) => {
-                crate::config::delete_pass_from_keyring();
+                crate::config::delete_pass_from_keyring().unwrap();
                 eprintln!("Check database password or location, unable to open database");
             }
         };
