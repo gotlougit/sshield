@@ -14,16 +14,22 @@ pub enum Prompt {
 pub struct Config {
     pub db_path: String,
     pub prompt: Prompt,
+    pub trust_keyring: bool,
 }
 
-pub fn get_pass() -> String {
+pub fn get_pass(trust_keyring: bool) -> String {
+    if !trust_keyring {
+        delete_pass_from_keyring();
+    }
     let user = std::env::var_os("USER").unwrap();
     let entry = Entry::new("sshield", user.to_str().unwrap()).unwrap();
     match entry.get_password() {
         Ok(pass) => pass,
         Err(_) => {
             let pass = crate::gui::get_db_pass();
-            entry.set_password(&pass).unwrap();
+            if trust_keyring {
+                entry.set_password(&pass).unwrap();
+            }
             pass
         }
     }
@@ -58,6 +64,8 @@ fn create_config_folder(config_path: &str) {
             "database".to_string(),
             (config_path.to_string() + "/keys.db3").into(),
         );
+        config.insert("keyring".to_string(), false.into());
+        config.insert("prompt".to_string(), 60.into());
         let rawconf = config.to_string();
         let conffilename = config_path.to_string() + "/sshield.toml";
         let mut file = fs::File::create(conffilename).unwrap();
@@ -86,8 +94,11 @@ pub fn get_all_vars() -> Config {
             Prompt::EveryNSeconds(prompt_timeout)
         }
     };
+    // Don't trust keyring by default
+    let trust_keyring = conf.get("keyring").unwrap().as_bool().unwrap_or(false);
     Config {
         db_path,
         prompt: auth_settings,
+        trust_keyring,
     }
 }

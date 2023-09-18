@@ -58,10 +58,14 @@ fn restrict_file() {
 
 #[tokio::main]
 async fn main() {
-    let Config { db_path, prompt } = crate::config::get_all_vars();
+    let Config {
+        db_path,
+        prompt,
+        trust_keyring,
+    } = crate::config::get_all_vars();
     let args = Args::parse();
     if let Some(cmd) = args.command {
-        let pass = crate::config::get_pass();
+        let pass = crate::config::get_pass(trust_keyring);
         match Client::init(pass.as_str(), &db_path) {
             Ok(mgr) => {
                 match cmd {
