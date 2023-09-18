@@ -16,6 +16,8 @@ It can:
 
 - Secure all key data through encryption of the database (using [SQLCipher](https://github.com/sqlcipher/sqlcipher))
 
+- Use the OS keyring to store your database password (disabled by default) so it unlocks on login
+
 To-dos:
 
 - Allow easy exporting of key data to the OpenSSH format
