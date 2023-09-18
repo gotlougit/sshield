@@ -3,7 +3,6 @@ use std::process::exit;
 use crate::socket::Client;
 use clap::Parser;
 use cli::{Args, Command};
-use keyring::Entry;
 
 mod cli;
 mod config;
@@ -62,18 +61,7 @@ async fn main() {
     let (db_path, auth_timeout) = crate::config::get_all_vars();
     let args = Args::parse();
     if let Some(cmd) = args.command {
-        let pass = {
-            let user = std::env::var_os("USER").unwrap();
-            let entry = Entry::new("sshield", user.to_str().unwrap()).unwrap();
-            match entry.get_password() {
-                Ok(pass) => pass,
-                Err(_) => {
-                    let pass = crate::gui::get_db_pass();
-                    entry.set_password(&pass).unwrap();
-                    pass
-                }
-            }
-        };
+        let pass = crate::config::get_pass();
         match Client::init(pass.as_str(), &db_path) {
             Ok(mgr) => {
                 match cmd {
@@ -148,7 +136,10 @@ async fn main() {
                     }
                 };
             }
-            Err(_) => eprintln!("Check database password or location, unable to open database"),
+            Err(_) => {
+                crate::config::delete_pass_from_keyring();
+                eprintln!("Check database password or location, unable to open database");
+            }
         };
     };
 }

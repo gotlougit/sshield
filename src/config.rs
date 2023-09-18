@@ -1,3 +1,4 @@
+use keyring::Entry;
 use std::env;
 use std::fs;
 use std::io::Write;
@@ -8,6 +9,25 @@ use toml::Table;
 pub enum Prompt {
     NoPrompt,
     EveryNSeconds(i64),
+}
+
+pub fn get_pass() -> String {
+    let user = std::env::var_os("USER").unwrap();
+    let entry = Entry::new("sshield", user.to_str().unwrap()).unwrap();
+    match entry.get_password() {
+        Ok(pass) => pass,
+        Err(_) => {
+            let pass = crate::gui::get_db_pass();
+            entry.set_password(&pass).unwrap();
+            pass
+        }
+    }
+}
+
+pub fn delete_pass_from_keyring() {
+    let user = std::env::var_os("USER").unwrap();
+    let entry = Entry::new("sshield", user.to_str().unwrap()).unwrap();
+    entry.delete_password().unwrap();
 }
 
 fn get_config_path() -> String {
