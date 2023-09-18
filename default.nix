@@ -7,8 +7,8 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "gotlougit";
     repo = pname;
-    rev = "5ede7caa40effeeaddceee4308310da35b2048ac";
-    sha256 = "sha256-YleacDAbha3R0Y31eDZBE07hQA+63bnIQ9GvWr5Sbes=";
+    rev = "f5724eb9191dc6acea3a68c6d9b8c2b2294c8cb9";
+    sha256 = "sha256-024IidKjg5u027np9DKfSDpTuNaas90Dql2YT4tvSLo=";
   };
 
   cargoLock = {
