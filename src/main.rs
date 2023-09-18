@@ -68,7 +68,7 @@ async fn main() {
                     Command::ChangePassword {} => {
                         std::mem::drop(mgr);
                         let newpass = crate::gui::get_new_db_pass();
-                        match crate::db::change_db_pass(&pass, &newpass) {
+                        match crate::db::change_db_pass(&db_path, &pass, &newpass) {
                             Ok(_) => println!("Password of database changed successfully!"),
                             Err(_) => eprintln!("Password was unable to be changed!"),
                         };

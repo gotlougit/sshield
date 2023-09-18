@@ -59,8 +59,8 @@ impl Display for ProcessedKey {
 }
 
 /// Opens the database and changes password from 'oldpass' to 'newpass'
-pub(crate) fn change_db_pass(oldpass: &str, newpass: &str) -> Result<Connection> {
-    match Connection::open("./keys.db3") {
+pub(crate) fn change_db_pass(db_path: &str, oldpass: &str, newpass: &str) -> Result<Connection> {
+    match Connection::open(db_path) {
         Ok(conn) => {
             conn.pragma_update(None, "key", oldpass)?;
             conn.pragma_update(None, "rekey", newpass)?;
