@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.72"
 async-trait = "0.1.72"
+chrono = "0.4.31"
 clap = { version = "4.3.17", features = [ "derive" ] }
 dialog = "0.3.0"
 dirs = "5.0.1"

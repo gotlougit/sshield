@@ -3,6 +3,8 @@ use crate::db::{self, ProcessedKey};
 use crate::gui;
 use anyhow::Result;
 use async_trait::async_trait;
+use chrono::prelude::*;
+use chrono::Duration;
 use rusqlite::Connection;
 use russh_keys::load_secret_key;
 use russh_keys::{agent::client, agent::server, agent::server::MessageType, key::KeyPair, pkcs8};
@@ -12,12 +14,14 @@ use tokio::fs::{self, File};
 use tokio::io::AsyncReadExt;
 use tokio::macros::support::Future;
 use tokio::net::{UnixListener, UnixStream};
+use tokio::sync::Mutex;
 
 const SOCKNAME: &str = "/run/user/1000/ssh-agent";
 
 #[derive(Clone)]
 struct SecureAgent {
     auth_timeout: Prompt,
+    last_auth_time: Arc<Mutex<DateTime<Utc>>>,
 }
 
 #[async_trait]
@@ -26,18 +30,30 @@ impl server::Agent for SecureAgent {
         Box::new(futures::future::ready((self, true)))
     }
     async fn confirm_request(&self, msg: MessageType) -> bool {
-        if self.auth_timeout == Prompt::NoPrompt {
-            return true;
+        match self.auth_timeout {
+            Prompt::NoPrompt => true,
+            Prompt::EveryNSeconds(diff) => {
+                // Only prompt on requesting signing since that is most important
+                let msgstr = match msg {
+                    MessageType::Sign => "Allow request to sign data?",
+                    _ => "",
+                };
+                if msgstr.is_empty() {
+                    return true;
+                }
+                let current_time = Utc::now();
+                let mut last_time = self.last_auth_time.lock().await;
+                let timediff = current_time - *last_time;
+                if timediff < Duration::seconds(diff) {
+                    return true;
+                }
+                if gui::confirm_request(msgstr) {
+                    *last_time = current_time;
+                    return true;
+                }
+                false
+            }
         }
-        // Only prompt on requesting signing since that is most important
-        let msgstr = match msg {
-            MessageType::Sign => "Allow request to sign data?",
-            _ => "",
-        };
-        if msgstr.is_empty() {
-            return true;
-        }
-        gui::confirm_request(msgstr)
     }
 }
 
@@ -45,9 +61,16 @@ pub async fn start_server(auth_timeout: Prompt) {
     match UnixListener::bind(SOCKNAME) {
         Ok(listener) => {
             let wrapper = tokio_stream::wrappers::UnixListenerStream::new(listener);
-            server::serve(wrapper, SecureAgent { auth_timeout })
-                .await
-                .unwrap();
+            let last_auth_time = Arc::new(Mutex::new(Utc::now()));
+            server::serve(
+                wrapper,
+                SecureAgent {
+                    auth_timeout,
+                    last_auth_time,
+                },
+            )
+            .await
+            .unwrap();
         }
         Err(e) => {
             eprintln!("Error while starting agent server: {}", e);
