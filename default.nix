@@ -14,7 +14,6 @@ rustPlatform.buildRustPackage rec {
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      "extrasafe-0.2.0" = "sha256-jJIL/zD07eopvZO9h1X1XccTva4edurdANv//hPZwIw=";
       "russh-0.38.0-beta.1" = "sha256-j6jQtRBEDQmYo4XmEmri1BfgJOASIASaUTi29KU/9k8=";
     };
   };

@@ -849,7 +849,8 @@ dependencies = [
 [[package]]
 name = "extrasafe"
 version = "0.3.0"
-source = "git+https://github.com/boustrophedon/extrasafe#ed91a215642fab661f4d4cf5bf8409a1d93036b2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e50420159c8230d3cd4a9e59d39aa0d6ce99583e2df1d3562a52351462bd469f"
 dependencies = [
  "libc",
  "seccompiler",
