@@ -4,17 +4,12 @@ rustPlatform.buildRustPackage rec {
   pname = "sshield";
   version = "0.1.0";
 
-  src = fetchFromGitHub {
-    owner = "gotlougit";
-    repo = pname;
-    rev = "7d5d51da4853401957eac693d51cbaff5c1ccd9d";
-    sha256 = "sha256-HrzrJP65I2EfUbTFeNLLyplzJgsV6zee6nBajY3XJ5M=";
-  };
+  src = ./.;
 
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      "russh-0.38.0-beta.1" = "sha256-j6jQtRBEDQmYo4XmEmri1BfgJOASIASaUTi29KU/9k8=";
+      "russh-keys-0.37.1" = "sha256-j6jQtRBEDQmYo4XmEmri1BfgJOASIASaUTi29KU/9k8=";
     };
   };
   cargoSha256 = "";
