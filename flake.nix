@@ -21,6 +21,7 @@
           pkgs.sqlcipher
           pkgs.gnome.zenity
           pkgs.libsForQt5.kdialog
+          pkgs.gdb
         ];
       };
       packages.${system} = {
