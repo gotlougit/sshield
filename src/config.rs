@@ -50,7 +50,7 @@ fn get_config_path() -> String {
         }
         None => {
             let home_dir = env::var_os("HOME").unwrap();
-            let parentconfdir = home_dir.into_string().unwrap().to_string();
+            let parentconfdir = home_dir.into_string().unwrap();
             parentconfdir + ".config/sshield"
         }
     }
