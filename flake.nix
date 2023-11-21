@@ -10,6 +10,7 @@
         name = "rustdev";
         shellHook = ''
           export CARGO_HOME="$(realpath ./.localcargo)"
+          export _ZO_DATA_DIR="$(realpath ./.localzoxide)"
         '';
         buildInputs = [
           pkgs.pkgconfig
