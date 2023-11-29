@@ -2021,9 +2021,8 @@ dependencies = [
 
 [[package]]
 name = "russh"
-version = "0.39.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7878311587d0353a854d5be954fbe68bdf6e77873933b484d1e45db12bb2f8cf"
+version = "0.39.0-beta.1"
+source = "git+https://github.com/warp-tech/russh#c0f34585c5fd5c50c4d58ea4b05ae062dbbf8c56"
 dependencies = [
  "aes 0.8.3",
  "aes-gcm",
@@ -2045,8 +2044,8 @@ dependencies = [
  "openssl",
  "poly1305",
  "rand 0.8.5",
- "russh-cryptovec 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "russh-keys 0.38.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "russh-cryptovec",
+ "russh-keys",
  "sha1",
  "sha2",
  "subtle",
@@ -2058,57 +2057,10 @@ dependencies = [
 [[package]]
 name = "russh-cryptovec"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9551797434b8d23c2030e192dc1bad257cff7b77088d082379edb9146ef88ec"
-dependencies = [
- "libc",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "russh-cryptovec"
-version = "0.7.1"
 source = "git+https://github.com/warp-tech/russh#c0f34585c5fd5c50c4d58ea4b05ae062dbbf8c56"
 dependencies = [
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "russh-keys"
-version = "0.38.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "557ab9190022dff78116ebed5e391abbd3f424b06cd643dfe262346ab91ed8c9"
-dependencies = [
- "aes 0.8.3",
- "async-trait",
- "bcrypt-pbkdf",
- "bit-vec",
- "block-padding 0.3.3",
- "byteorder",
- "cbc",
- "ctr",
- "data-encoding",
- "dirs 5.0.1",
- "ed25519-dalek",
- "futures",
- "hmac",
- "inout",
- "log",
- "md5",
- "num-bigint",
- "num-integer",
- "openssl",
- "pbkdf2 0.11.0",
- "rand 0.7.3",
- "rand_core 0.6.4",
- "russh-cryptovec 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde",
- "sha2",
- "thiserror",
- "tokio",
- "tokio-stream",
- "yasna",
 ]
 
 [[package]]
@@ -2139,7 +2091,7 @@ dependencies = [
  "pbkdf2 0.11.0",
  "rand 0.7.3",
  "rand_core 0.6.4",
- "russh-cryptovec 0.7.1 (git+https://github.com/warp-tech/russh)",
+ "russh-cryptovec",
  "serde",
  "sha1",
  "sha2",
@@ -2421,7 +2373,7 @@ dependencies = [
  "keyring",
  "rusqlite",
  "russh",
- "russh-keys 0.38.0 (git+https://github.com/warp-tech/russh)",
+ "russh-keys",
  "ssh2-config",
  "tokio",
  "tokio-stream",
