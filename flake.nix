@@ -13,7 +13,7 @@
           export _ZO_DATA_DIR="$(realpath ./.localzoxide)"
         '';
         buildInputs = [
-          pkgs.pkgconfig
+          pkgs.pkg-config
           pkgs.cargo
           pkgs.clippy
           pkgs.rustc
