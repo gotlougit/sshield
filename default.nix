@@ -8,9 +8,6 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock = {
     lockFile = ./Cargo.lock;
-    outputHashes = {
-      "russh-cryptovec-0.7.1" = "sha256-KFICJmkBlKOPAygSGBJJeLJlcA/yzA7IjS68VcKV2kA=";
-    };
   };
   cargoSha256 = "";
 
