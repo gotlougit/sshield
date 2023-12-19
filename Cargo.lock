@@ -2030,7 +2030,8 @@ dependencies = [
 [[package]]
 name = "russh"
 version = "0.40.2"
-source = "git+https://github.com/warp-tech/russh#da4c04052ee221f01962aed9b85ed7412fe88c58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93dab9e1c313d0d04a42e39c0995943fc38c037e2e3fa9c33685777a1aecdfb2"
 dependencies = [
  "aes 0.8.3",
  "aes-gcm",
@@ -2065,7 +2066,8 @@ dependencies = [
 [[package]]
 name = "russh-cryptovec"
 version = "0.7.2"
-source = "git+https://github.com/warp-tech/russh#da4c04052ee221f01962aed9b85ed7412fe88c58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b077b6dd8d8c085dac62f7fcc5a83df60c7f7a22d49bfba994f2f4dbf60bc74"
 dependencies = [
  "libc",
  "winapi 0.3.9",
@@ -2074,7 +2076,8 @@ dependencies = [
 [[package]]
 name = "russh-keys"
 version = "0.40.1"
-source = "git+https://github.com/warp-tech/russh#da4c04052ee221f01962aed9b85ed7412fe88c58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d0de3cb3cbfa773b7f170b6830565fac207a0d630cc666a29f80097cc374dd8"
 dependencies = [
  "aes 0.8.3",
  "async-trait",
