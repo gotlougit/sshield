@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, makeBinaryWrapper, rustPlatform, fetchFromGitHub, pkgs, cargo, pkg-config, openssl, libseccomp, sqlcipher, ... }:
 
 with lib;
 
@@ -36,8 +36,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.callPackage ./default.nix ];
-    
+    home.packages = [ (pkgs.callPackage ./default.nix { }) ];  
     home.sessionVariablesExtra = ''
       if [[ -z "$SSH_AUTH_SOCK" ]]; then
         export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent
