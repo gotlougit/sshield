@@ -46,6 +46,7 @@ in {
     systemd.user.services.sshield = {
       Unit = {
         Description = "Secure SSH agent written in Rust";
+        After = [ "graphical-session.target" ];
       };
       Install = {
         WantedBy = [ "default.target" ];
