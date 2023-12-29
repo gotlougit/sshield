@@ -29,5 +29,6 @@
       packages.${system} = {
         default = pkgs.callPackage ./default.nix { };
       };
+      hmModule = import ./home-manager.nix;
     };
 }
