@@ -37,9 +37,36 @@ Nice-to-haves:
 
 ## Usage
 
-Clone this repo. Then, assuming you have `direnv` and `nix` (with flakes enabled),
-simply allow this repo's `.envrc` using `direnv allow .` after entering this repo.
+The best way is to use Nix and [home-manager](https://github.com/nix-community/home-manager). This way, a hardened user systemd service will be set up that runs on login.
+You can configure sshield using Nix for greater flexibility.
 
-The flake will automatically download the dependencies of this project, including
-its own Rust toolchain, `kdialog` and `zenity` (for creating dialog boxes) and 
-`openssl.dev` to build against OpenSSL.
+The provided Home Manager module will also add the program to your user's PATH, so it can be invoked from the command line.
+
+For a flake-based NixOS config, add this repo to your inputs:
+
+```
+inputs.sshield.url = "github:gotlougit/sshield";
+inputs.sshield.inputs.nixpkgs.follows = "nixpkgs";
+```
+
+and write the following in your Home Manager config:
+
+```
+{ inputs, ... }:
+{
+  imports = [ inputs.sshield.hmModule ];
+  programs.sshield = {
+    enable = true;
+    settings = {
+      # Write your config here
+      database = "/home/user/.sshield.db";
+      prompt = 60;
+      keyring = true;
+    };
+  };
+}
+```
+
+This does all the hard work for you! You now have a hardened SSH agent using encrypted SSH keys
+that unlocks the database on login using the keyring that comes with your desktop environment
+(if any).
