@@ -60,6 +60,7 @@ in {
           #!/usr/bin/env bash
           rm "$XDG_RUNTIME_DIR"/ssh-agent
         ''}";
+        Restart = "on-failure";
         LockPersonality = true;
         PrivateNetwork = true;
         MemoryDenyWriteExecute = true;
