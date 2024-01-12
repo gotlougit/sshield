@@ -68,6 +68,7 @@ in {
         ProtectSystem = "strict";
         PrivateMounts = true;
         PrivateTmp = true;
+        ProtectProc = "invisible";
         ProtectClock = true;
         ProtectControlGroups = true;
         ProtectHostname = true;
