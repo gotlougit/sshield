@@ -53,11 +53,11 @@ in {
       };
       Service = {
         ExecStart = "${pkgs.writeShellScript "sshield-serve" ''
-          #!/run/current-system/sw/bin/bash
+          #!/usr/bin/env bash
           sshield serve
         ''}";
         ExecStop = "${pkgs.writeShellScript "sshield-stop" ''
-          #!/run/current-system/sw/bin/bash
+          #!/usr/bin/env bash
           rm "$XDG_RUNTIME_DIR"/ssh-agent
         ''}";
         LockPersonality = true;
