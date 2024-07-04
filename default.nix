@@ -1,4 +1,5 @@
-{ lib, makeBinaryWrapper, rustPlatform, fetchFromGitHub, pkgs, cargo, pkg-config, openssl, libseccomp, sqlcipher, ... }:
+{ lib, makeBinaryWrapper, rustPlatform, fetchFromGitHub, pkgs, cargo, pkg-config
+, openssl, libseccomp, sqlcipher, ... }:
 
 rustPlatform.buildRustPackage rec {
   pname = "sshield";
@@ -6,18 +7,14 @@ rustPlatform.buildRustPackage rec {
 
   src = ./.;
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-  };
+  cargoLock = { lockFile = ./Cargo.lock; };
   cargoSha256 = "";
 
-  nativeBuildInputs = [ makeBinaryWrapper cargo rustPlatform.cargoSetupHook pkg-config ];
+  nativeBuildInputs =
+    [ makeBinaryWrapper cargo rustPlatform.cargoSetupHook pkg-config ];
   buildInputs = [ openssl libseccomp sqlcipher ];
-  wrapperPath = lib.makeBinPath ([
-    pkgs.libsForQt5.kdialog
-    pkgs.gnome.zenity
-  ]);
-  
+  wrapperPath = lib.makeBinPath ([ pkgs.libsForQt5.kdialog pkgs.zenity ]);
+
   checkPhase = false;
   postFixup = ''
     wrapProgram $out/bin/sshield --prefix PATH : "${wrapperPath}"
