@@ -22,7 +22,7 @@
           pkgs.libseccomp
           pkgs.sqlcipher
           pkgs.zenity
-          pkgs.libsForQt5.kdialog
+          pkgs.kdePackages.kdialog
           pkgs.gdb
         ];
       };
